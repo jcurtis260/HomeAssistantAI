@@ -162,34 +162,6 @@ class AiAgentHaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ig
         errors = {}
 
         if user_input is not None:
-            # Check if user wants to configure defaults
-            if user_input.get("ai_provider") == "defaults":
-                # Create a defaults-only entry
-                all_entries = self.hass.config_entries.async_entries(DOMAIN)
-                
-                # Get current defaults if they exist
-                current_default_provider = None
-                current_default_model = None
-                for entry in all_entries:
-                    if entry.data.get(CONF_DEFAULT_PROVIDER):
-                        current_default_provider = entry.data.get(CONF_DEFAULT_PROVIDER)
-                        current_default_model = entry.data.get(CONF_DEFAULT_MODEL)
-                        break
-                
-                # Get configured providers for default selection
-                configured_providers = [entry.data.get("ai_provider") for entry in all_entries if entry.data.get("ai_provider") and entry.data.get("ai_provider") != "defaults"]
-                
-                # Check if defaults entry already exists
-                await self.async_set_unique_id("ai_agent_ha_defaults")
-                self._abort_if_unique_id_configured()
-                
-                self.config_data = {
-                    "ai_provider": "defaults",
-                    CONF_DEFAULT_PROVIDER: current_default_provider or (configured_providers[0] if configured_providers else DEFAULT_PROVIDER),
-                    CONF_DEFAULT_MODEL: current_default_model,
-                }
-                return await self.async_step_configure_defaults()
-            
             # Check if this provider is already configured
             await self.async_set_unique_id(f"ai_agent_ha_{user_input['ai_provider']}")
             self._abort_if_unique_id_configured()
@@ -197,26 +169,17 @@ class AiAgentHaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ig
             self.config_data = {"ai_provider": user_input["ai_provider"]}
             return await self.async_step_configure()
 
-        # Get all existing entries to check if defaults already exists
-        all_entries = self.hass.config_entries.async_entries(DOMAIN)
-        has_defaults_entry = any(entry.data.get("ai_provider") == "defaults" for entry in all_entries)
-        
-        # Build provider options
-        provider_options = [
-            {"value": k, "label": v} for k, v in PROVIDERS.items()
-        ]
-        
-        # Add "Default Settings" option if it doesn't exist
-        if not has_defaults_entry:
-            provider_options.insert(0, {"value": "defaults", "label": "⚙️ Default Settings"})
-
-        # Show provider selection form
+        # Show provider selection form (no defaults option - use options flow instead)
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Required("ai_provider"): SelectSelector(
-                        SelectSelectorConfig(options=provider_options)
+                        SelectSelectorConfig(
+                            options=[
+                                {"value": k, "label": v} for k, v in PROVIDERS.items()
+                            ]
+                        )
                     ),
                 }
             ),
@@ -428,10 +391,6 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input=None):
         """Handle the initial options step - show defaults or provider selection."""
-        # If this is a defaults entry, show defaults configuration
-        if self.config_entry.data.get("ai_provider") == "defaults":
-            return await self.async_step_configure_defaults_options(user_input)
-        
         all_entries = self.hass.config_entries.async_entries(DOMAIN)
         
         # Get current defaults from any entry
