@@ -25,6 +25,8 @@ class AiAgentHaPanel extends LitElement {
       _messages: { type: Array, reflect: false, attribute: false },
       _isLoading: { type: Boolean, reflect: false, attribute: false },
       _error: { type: String, reflect: false, attribute: false },
+      _errorDetails: { type: Object, reflect: false, attribute: false },
+      _showErrorDetails: { type: Boolean, reflect: false, attribute: false },
       _pendingAutomation: { type: Object, reflect: false, attribute: false },
       _promptHistory: { type: Array, reflect: false, attribute: false },
       _showPredefinedPrompts: { type: Boolean, reflect: false, attribute: false },
@@ -884,6 +886,33 @@ class AiAgentHaPanel extends LitElement {
         margin: 8px 0;
         border-radius: 12px;
         background: var(--error-background-color);
+      }
+      .error-message {
+        color: var(--error-color);
+        padding: 16px;
+        margin: 8px 0;
+        border-radius: 12px;
+        background: var(--error-background-color);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+      .error-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .error-details {
+        margin-top: 12px;
+        padding: 12px;
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 11px;
+        color: #fca5a5;
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 400px;
+        overflow-y: auto;
+      }
         border: 1px solid var(--error-color);
         animation: fadeIn 0.3s ease-out;
       }
@@ -1287,6 +1316,8 @@ class AiAgentHaPanel extends LitElement {
     this._messages = [];
     this._isLoading = false;
     this._error = null;
+    this._errorDetails = null;
+    this._showErrorDetails = false;
     this._pendingAutomation = null;
     this._promptHistory = [];
     this._promptHistoryLoaded = false;
@@ -1912,7 +1943,30 @@ class AiAgentHaPanel extends LitElement {
               </div>
             ` : ''}
             ${this._error ? html`
-              <div class="error">${this._error}</div>
+              <div class="error-message">
+                <div class="error-header">
+                  <ha-icon icon="mdi:alert-circle" style="color: #ef4444; margin-right: 8px;"></ha-icon>
+                  <div style="flex: 1;">${this._error}</div>
+                  ${this._errorDetails ? html`
+                    <div 
+                      class="detail-toggle ${this._showErrorDetails ? 'expanded' : ''}"
+                      @click=${() => { 
+                        this._showErrorDetails = !this._showErrorDetails; 
+                        this.requestUpdate(); 
+                      }}
+                      style="cursor: pointer; display: flex; align-items: center; gap: 4px; color: #94a3b8; font-size: 12px;"
+                    >
+                      <ha-icon icon="mdi:chevron-down"></ha-icon>
+                      <span>${this._showErrorDetails ? 'Hide' : 'Show'} Details</span>
+                    </div>
+                  ` : ''}
+                </div>
+                ${this._showErrorDetails && this._errorDetails ? html`
+                  <div class="error-details" style="margin-top: 12px; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 4px; font-family: monospace; font-size: 11px; color: #fca5a5; white-space: pre-wrap; word-break: break-all;">
+                    ${JSON.stringify(this._errorDetails, null, 2)}
+                  </div>
+                ` : ''}
+              </div>
             ` : ''}
           </div>
           ${this._renderPromptsSection()}
@@ -2101,6 +2155,8 @@ class AiAgentHaPanel extends LitElement {
     promptEl.style.height = 'auto';
     this._isLoading = true;
     this._error = null;
+    this._errorDetails = null;
+    this._showErrorDetails = false;
     this._requestStartTime = Date.now();
     this._currentPrompt = prompt; // Store the modified prompt for status details
     this._statusLog = [];
@@ -2171,6 +2227,13 @@ class AiAgentHaPanel extends LitElement {
       console.error("Error calling service:", error);
       this._clearLoadingState();
       this._error = error.message || 'An error occurred while processing your request';
+      this._errorDetails = {
+        message: error.message,
+        stack: error.stack,
+        response: error.response || error.data,
+        status: error.status || error.statusCode,
+        timestamp: new Date().toISOString()
+      };
       this._messages = [...this._messages, {
         type: 'assistant',
         text: `Error: ${this._error}`
@@ -2468,6 +2531,14 @@ class AiAgentHaPanel extends LitElement {
       const errorMessage = event.data.error || 'An error occurred';
       const friendlyError = this._formatErrorMessage(errorMessage);
       this._error = friendlyError;
+      this._errorDetails = {
+        error: errorMessage,
+        eventData: event.data,
+        debugInfo: event.data.debug_info || null,
+        statusLog: [...this._statusLog],
+        conversationHistory: this._currentPrompt,
+        timestamp: new Date().toISOString()
+      };
       this._addStatusLog('❌ Error occurred', errorMessage);
       this._messages = [
         ...this._messages,
@@ -2480,6 +2551,13 @@ class AiAgentHaPanel extends LitElement {
       this._clearLoadingState();
       const friendlyError = this._formatErrorMessage(error.message || String(error));
       this._error = friendlyError;
+      this._errorDetails = {
+        error: error.message || String(error),
+        stack: error.stack,
+        statusLog: [...this._statusLog],
+        conversationHistory: this._currentPrompt,
+        timestamp: new Date().toISOString()
+      };
       this._addStatusLog('❌ Error processing response', error.message || String(error));
       this._messages = [...this._messages, {
         type: 'assistant',
@@ -2684,6 +2762,8 @@ class AiAgentHaPanel extends LitElement {
     this._saveChatHistory(); // Save empty chat
     this._clearLoadingState();
     this._error = null;
+    this._errorDetails = null;
+    this._showErrorDetails = false;
     this._pendingAutomation = null;
     // Don't clear prompt history - users might want to keep it
   }

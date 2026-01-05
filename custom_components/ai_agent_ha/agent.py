@@ -2776,7 +2776,7 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
             self.conversation_history.append({"role": "user", "content": user_query})
             _LOGGER.debug("Added user query to conversation history")
 
-            max_iterations = 5  # Prevent infinite loops
+            max_iterations = 15  # Increased for complex queries (dashboard reviews, multi-step operations)
             iteration = 0
 
             while iteration < max_iterations:
@@ -3561,9 +3561,17 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
 
             # If we've reached max iterations without a final response
             _LOGGER.warning("Reached maximum iterations without final response")
+            _LOGGER.debug(f"Conversation history length: {len(self.conversation_history)}")
+            _LOGGER.debug(f"Last few messages: {self.conversation_history[-3:] if len(self.conversation_history) >= 3 else self.conversation_history}")
             result = {
                 "success": False,
-                "error": "Maximum iterations reached without final response",
+                "error": f"Maximum iterations ({max_iterations}) reached without final response. The query may be too complex or the AI is stuck in a loop. Try breaking it into smaller parts.",
+                "debug_info": {
+                    "iterations": iteration,
+                    "max_iterations": max_iterations,
+                    "conversation_length": len(self.conversation_history),
+                    "last_messages": self.conversation_history[-3:] if len(self.conversation_history) >= 3 else self.conversation_history
+                }
             }
             self._set_cached_data(cache_key, result)
             return result
