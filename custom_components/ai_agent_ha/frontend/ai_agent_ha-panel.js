@@ -2194,10 +2194,13 @@ class AiAgentHaPanel extends LitElement {
       this._messages = [...this._messages, message];
       this._saveChatHistory(); // Save after receiving response
     } else {
-      this._error = event.data.error || 'An error occurred';
+      const errorMessage = event.data.error || 'An error occurred';
+      const friendlyError = this._formatErrorMessage(errorMessage);
+      this._error = friendlyError;
+      this._addStatusLog('❌ Error occurred', errorMessage);
       this._messages = [
         ...this._messages,
-        { type: 'assistant', text: `Error: ${this._error}` }
+        { type: 'assistant', text: friendlyError }
       ];
       this._saveChatHistory(); // Save after error
     }
