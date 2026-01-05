@@ -120,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - YYYY-MM-DD (Replace with actual release date)
 ### Added
-- Initial release of AI Agent HA
+- Initial release of HomeMind Ai (forked from AI Agent HA)
 - Support for multiple AI providers (OpenAI, Google Gemini, Anthropic Claude, OpenRouter, Llama)
 - Entity control through natural language
 - Automation creation

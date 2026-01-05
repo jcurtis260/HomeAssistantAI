@@ -277,8 +277,8 @@ Contributors are recognized in:
 
 ## 📄 License
 
-By contributing to AI Agent HA, you agree that your contributions will be licensed under the MIT License.
+By contributing to HomeMind Ai, you agree that your contributions will be licensed under the MIT License.
 
 ---
 
-Thank you for contributing to AI Agent HA! Your efforts help make Home Assistant more intelligent and user-friendly. 🤖✨
+Thank you for contributing to HomeMind Ai! Your efforts help make Home Assistant more intelligent and user-friendly. 🤖✨
