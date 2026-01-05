@@ -7,7 +7,7 @@
         "lovelace"
     ],
     "codeowners": [
-        "@sbenodiz"
+        "@jcurtis260"
     ],
     "config_flow": true,
     "dependencies": [
@@ -20,5 +20,5 @@
     "requirements": [
         "aiohttp>=3.8.0"
     ],
-    "version": "1.08"
+    "version": "1.09"
 }

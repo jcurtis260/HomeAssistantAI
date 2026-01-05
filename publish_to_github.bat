@@ -86,7 +86,7 @@ echo.
 echo Repository: https://github.com/jcurtis260/HomeAssistantAI
 echo.
 echo Next steps:
-echo 1. Update repository URLs in manifest.json (replace sbenodiz with jcurtis260)
+echo 1. Repository URLs already updated to jcurtis260/HomeAssistantAI
 echo 2. Install in Home Assistant via HACS or manually
 echo.
 pause
