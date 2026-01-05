@@ -1602,7 +1602,11 @@ class AiAgentHaPanel extends LitElement {
         <div style="display: flex; gap: 8px; margin-left: auto;">
           <button
             class="options-button"
-            @click=${() => { this._showOptionsDialog = true; this.requestUpdate(); }}
+            @click=${(e) => { 
+              e.stopPropagation();
+              this._showOptionsDialog = !this._showOptionsDialog;
+              this.requestUpdate();
+            }}
             ?disabled=${this._isLoading}
             title="Options - Edit Custom System Prompt"
           >
@@ -1859,21 +1863,31 @@ class AiAgentHaPanel extends LitElement {
     let prompt = promptEl.value.trim();
     if (!prompt || this._isLoading) return;
 
+    // Store original user message for display
+    const originalUserMessage = prompt;
+    
     // Prepend custom system prompt if set
     if (this._customSystemPrompt && this._customSystemPrompt.trim()) {
       const customPrompt = this._customSystemPrompt.trim();
       // Replace *User MSG* or {USER_MSG} with the actual user message
       if (customPrompt.includes('*User MSG*') || customPrompt.includes('{USER_MSG}')) {
-        prompt = customPrompt.replace(/\*User MSG\*/g, prompt).replace(/{USER_MSG}/g, prompt);
+        prompt = customPrompt.replace(/\*User MSG\*/g, originalUserMessage).replace(/{USER_MSG}/g, originalUserMessage);
       } else {
-        // If no placeholder, append user message with separator
-        prompt = `${customPrompt} - ${prompt}`;
+        // If no placeholder, prepend custom prompt with user message
+        prompt = `${customPrompt}\n\nUser message: ${originalUserMessage}`;
       }
-      console.debug("Applied custom system prompt, final prompt:", prompt);
+      console.log("🔧 DEBUG: Custom system prompt applied");
+      console.log("   Custom prompt:", this._customSystemPrompt);
+      console.log("   Original user message:", originalUserMessage);
+      console.log("   Final combined prompt:", prompt);
+    } else {
+      console.log("🔧 DEBUG: No custom system prompt - using default");
     }
 
-    console.debug("Sending message:", prompt);
-    console.debug("Sending message with provider:", this._selectedProvider);
+    console.log("📤 DEBUG: Sending to AI");
+    console.log("   Provider:", this._selectedProvider);
+    console.log("   Full prompt length:", prompt.length, "characters");
+    console.log("   Prompt preview:", prompt.substring(0, 200) + (prompt.length > 200 ? '...' : ''));
 
     // Add original user message to history (not the modified one)
     await this._addToHistory(promptEl.value.trim());
@@ -1889,7 +1903,7 @@ class AiAgentHaPanel extends LitElement {
     this._currentPrompt = prompt; // Store the modified prompt for status details
     this._statusLog = [];
     this._aiResponse = ''; // Clear previous response
-    this._addStatusLog('📤 Sending request to AI service...', `Full prompt sent: "${prompt}"`);
+    this._addStatusLog('📤 Sending request to AI service...', `Provider: ${this._selectedProvider}\nPrompt length: ${prompt.length} chars`);
     this._showStatusDetails = false;
 
     // Clear any existing timeout
@@ -2000,47 +2014,51 @@ class AiAgentHaPanel extends LitElement {
   }
 
   _updateStatusDetails() {
-    // Build detailed status from log
-    let details = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-    details += `📤 PROMPT SENT TO AI:\n`;
-    details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    details += `"${this._currentPrompt || 'No prompt yet'}"\n\n`;
+    // Build compact, informative status details
+    let details = `📤 PROMPT SENT (${this._currentPrompt ? this._currentPrompt.length : 0} chars):\n`;
+    if (this._currentPrompt) {
+      // Show first 150 chars + last 50 chars if longer
+      if (this._currentPrompt.length > 200) {
+        details += `${this._currentPrompt.substring(0, 150)}...\n...${this._currentPrompt.substring(this._currentPrompt.length - 50)}\n`;
+      } else {
+        details += `${this._currentPrompt}\n`;
+      }
+    } else {
+      details += `No prompt yet\n`;
+    }
+    details += `\n`;
     
     if (this._statusLog.length > 0) {
-      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      details += `📊 PROCESSING STEPS:\n`;
-      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+      details += `📊 STEPS:\n`;
       this._statusLog.forEach((log, index) => {
         const time = log.timestamp && !isNaN(new Date(log.timestamp).getTime()) 
           ? new Date(log.timestamp).toLocaleTimeString() 
           : 'Just now';
-        details += `[${time}] ${log.message}\n`;
+        details += `[${time}] ${log.message}`;
         if (log.details) {
-          // Show full details, but format nicely
-          const detailLines = log.details.split('\n');
-          detailLines.forEach(line => {
-            if (line.trim()) {
-              details += `   ${line}\n`;
-            }
-          });
+          // Show compact details (first line only if multiple lines)
+          const firstLine = log.details.split('\n')[0];
+          if (firstLine.length > 80) {
+            details += ` - ${firstLine.substring(0, 80)}...`;
+          } else {
+            details += ` - ${firstLine}`;
+          }
         }
         details += `\n`;
       });
+      details += `\n`;
     }
     
     if (this._aiResponse) {
-      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      details += `📥 RESPONSE RECEIVED FROM AI:\n`;
-      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-      // Truncate very long responses for display
-      if (this._aiResponse.length > 2000) {
-        details += `${this._aiResponse.substring(0, 2000)}...\n\n[Response truncated - ${this._aiResponse.length} characters total]`;
+      details += `📥 RESPONSE (${this._aiResponse.length} chars):\n`;
+      // Show first 300 chars + last 100 chars if longer
+      if (this._aiResponse.length > 400) {
+        details += `${this._aiResponse.substring(0, 300)}...\n...${this._aiResponse.substring(this._aiResponse.length - 100)}`;
       } else {
         details += `${this._aiResponse}`;
       }
     } else if (this._isLoading) {
-      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      details += `⏳ Waiting for AI response...\n`;
+      details += `⏳ Waiting for response...`;
     }
     
     this._statusDetails = details;
@@ -2342,14 +2360,22 @@ class AiAgentHaPanel extends LitElement {
     }
   }
 
-  _saveCustomSystemPrompt() {
+  async _saveCustomSystemPrompt() {
     try {
       if (this._customSystemPrompt && this._customSystemPrompt.trim()) {
         localStorage.setItem('ai_agent_ha_custom_system_prompt', this._customSystemPrompt);
-        console.debug('Saved custom system prompt to localStorage');
+        console.log('💾 DEBUG: Saved custom system prompt to localStorage:', this._customSystemPrompt);
+        // Also try to save to Home Assistant storage
+        try {
+          await this.hass.callService('ai_agent_ha', 'save_prompt_history', {
+            custom_system_prompt: this._customSystemPrompt
+          });
+        } catch (e) {
+          console.warn('Could not save to Home Assistant storage, using localStorage only:', e);
+        }
       } else {
         localStorage.removeItem('ai_agent_ha_custom_system_prompt');
-        console.debug('Removed custom system prompt from localStorage');
+        console.log('💾 DEBUG: Removed custom system prompt from localStorage');
       }
     } catch (e) {
       console.error('Error saving custom system prompt:', e);
