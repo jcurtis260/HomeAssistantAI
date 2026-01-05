@@ -3033,7 +3033,63 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
                             )
 
                             # Execute tool call
-                            data = await self._execute_tool_call(request_type, parameters)
+                            if request_type == "get_entity_state":
+                                data = await self.get_entity_state(
+                                    parameters.get("entity_id")
+                                )
+                            elif request_type == "get_entities_by_domain":
+                                data = await self.get_entities_by_domain(
+                                    parameters.get("domain")
+                                )
+                            elif request_type == "get_entities_by_area":
+                                data = await self.get_entities_by_area(
+                                    parameters.get("area_id")
+                                )
+                            elif request_type == "get_entities":
+                                data = await self.get_entities(
+                                    area_id=parameters.get("area_id"),
+                                    area_ids=parameters.get("area_ids"),
+                                )
+                            elif request_type == "get_entities_by_device_class":
+                                data = await self.get_entities_by_device_class(
+                                    parameters.get("device_class"),
+                                    parameters.get("domain"),
+                                )
+                            elif request_type == "get_climate_related_entities":
+                                data = await self.get_climate_related_entities()
+                            elif request_type == "get_calendar_events":
+                                data = await self.get_calendar_events(
+                                    parameters.get("entity_id")
+                                )
+                            elif request_type == "get_automations":
+                                data = await self.get_automations()
+                            elif request_type == "get_entity_registry":
+                                data = await self.get_entity_registry()
+                            elif request_type == "get_device_registry":
+                                data = await self.get_device_registry()
+                            elif request_type == "get_weather_data":
+                                data = await self.get_weather_data()
+                            elif request_type == "get_area_registry":
+                                data = await self.get_area_registry()
+                            elif request_type == "get_history":
+                                data = await self.get_history(
+                                    parameters.get("entity_id"),
+                                    parameters.get("hours", 24),
+                                )
+                            elif request_type == "get_person_data":
+                                data = await self.get_person_data()
+                            elif request_type == "get_statistics":
+                                data = await self.get_statistics(
+                                    parameters.get("entity_id")
+                                )
+                            elif request_type == "get_scenes":
+                                data = await self.get_scenes()
+                            elif request_type == "get_dashboards":
+                                data = await self.get_dashboards()
+                            elif request_type == "get_dashboard_config":
+                                data = await self.get_dashboard_config(
+                                    parameters.get("dashboard_url")
+                                )
                             elif request_type == "set_entity_state":
                                 data = await self.set_entity_state(
                                     parameters.get("entity_id"),
