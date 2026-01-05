@@ -586,14 +586,60 @@ class AiAgentHaPanel extends LitElement {
         animation: fadeIn 0.3s ease-out;
       }
       .automation-suggestion {
-        background: var(--secondary-background-color);
-        border: 1px solid var(--primary-color);
-        border-radius: 12px;
+        background: rgba(30, 35, 50, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(99, 102, 241, 0.4);
+        border-radius: 16px;
         padding: 16px;
         margin: 8px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 
+          0 4px 20px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
         position: relative;
         z-index: 10;
+      }
+      .automation-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        margin-bottom: 12px;
+      }
+      .automation-toggle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #a5b4fc;
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+      .automation-toggle:hover {
+        background: rgba(99, 102, 241, 0.2);
+      }
+      .automation-toggle ha-icon {
+        --mdc-icon-size: 16px;
+        transition: transform 0.3s ease;
+      }
+      .automation-toggle.collapsed ha-icon {
+        transform: rotate(-90deg);
+      }
+      .automation-content {
+        max-height: 2000px;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        opacity: 1;
+      }
+      .automation-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
       }
       .automation-title {
         font-weight: 500;
@@ -656,6 +702,47 @@ class AiAgentHaPanel extends LitElement {
         z-index: 10;
         animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
+      }
+      .dashboard-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+      }
+      .dashboard-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #a5b4fc;
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+      .dashboard-toggle:hover {
+        background: rgba(99, 102, 241, 0.2);
+      }
+      .dashboard-toggle ha-icon {
+        --mdc-icon-size: 18px;
+        transition: transform 0.3s ease;
+      }
+      .dashboard-toggle.collapsed ha-icon {
+        transform: rotate(-90deg);
+      }
+      .dashboard-content {
+        max-height: 2000px;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        opacity: 1;
+      }
+      .dashboard-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
       }
       .dashboard-suggestion::before {
         content: '';
@@ -730,6 +817,43 @@ class AiAgentHaPanel extends LitElement {
         box-shadow: 
           0 8px 32px rgba(0, 0, 0, 0.4),
           inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+      .preview-toggle {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #a5b4fc;
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        margin-left: auto;
+      }
+      .preview-toggle:hover {
+        background: rgba(99, 102, 241, 0.2);
+      }
+      .preview-toggle ha-icon {
+        --mdc-icon-size: 16px;
+        transition: transform 0.3s ease;
+      }
+      .preview-toggle.collapsed ha-icon {
+        transform: rotate(-90deg);
+      }
+      .preview-content {
+        max-height: 2000px;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        opacity: 1;
+      }
+      .preview-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
       }
       .preview-header {
         display: flex;
@@ -872,6 +996,7 @@ class AiAgentHaPanel extends LitElement {
     this._elapsedTime = 0;
     this._currentPrompt = '';
     this._statusLog = [];
+    this._collapsedItems = {};
     this._predefinedPrompts = [
       "Build a new automation to turn off all lights at 10:00 PM every day",
       "What's the current temperature inside and outside?",
@@ -1284,45 +1409,61 @@ class AiAgentHaPanel extends LitElement {
       <div class="content">
         <div class="chat-container">
           <div class="messages" id="messages">
-            ${this._messages.map(msg => html`
+            ${this._messages.map((msg, index) => html`
               <div class="message ${msg.type}-message">
                 ${msg.text}
                 ${msg.automation ? html`
                   <div class="automation-suggestion">
-                    <div class="automation-title">${msg.automation.alias}</div>
-                    <div class="automation-description">${msg.automation.description}</div>
-                    <div class="automation-details">
-                      ${JSON.stringify(msg.automation, null, 2)}
+                    <div class="automation-header" @click=${() => this._toggleCollapse(`automation-${index}`)}>
+                      <div class="automation-title">${msg.automation.alias}</div>
+                      <div class="automation-toggle ${this._isCollapsed(`automation-${index}`) ? 'collapsed' : ''}">
+                        <ha-icon icon="mdi:chevron-down"></ha-icon>
+                        <span>${this._isCollapsed(`automation-${index}`) ? 'Expand' : 'Collapse'}</span>
+                      </div>
                     </div>
-                    <div class="automation-actions">
-                      <ha-button
-                        @click=${() => this._approveAutomation(msg.automation)}
-                        .disabled=${this._isLoading}
-                      >Approve</ha-button>
-                      <ha-button
-                        @click=${() => this._rejectAutomation()}
-                        .disabled=${this._isLoading}
-                      >Reject</ha-button>
+                    <div class="automation-content ${this._isCollapsed(`automation-${index}`) ? 'collapsed' : ''}">
+                      <div class="automation-description">${msg.automation.description}</div>
+                      <div class="automation-details">
+                        ${JSON.stringify(msg.automation, null, 2)}
+                      </div>
+                      <div class="automation-actions">
+                        <ha-button
+                          @click=${() => this._approveAutomation(msg.automation)}
+                          .disabled=${this._isLoading}
+                        >Approve</ha-button>
+                        <ha-button
+                          @click=${() => this._rejectAutomation()}
+                          .disabled=${this._isLoading}
+                        >Reject</ha-button>
+                      </div>
                     </div>
                   </div>
                 ` : ''}
                 ${msg.dashboard ? html`
                   <div class="dashboard-suggestion">
-                    <div class="dashboard-title">
-                      <ha-icon icon="mdi:view-dashboard"></ha-icon>
-                      ${msg.dashboard.title}
+                    <div class="dashboard-header" @click=${() => this._toggleCollapse(`dashboard-${index}`)}>
+                      <div class="dashboard-title">
+                        <ha-icon icon="mdi:view-dashboard"></ha-icon>
+                        ${msg.dashboard.title}
+                      </div>
+                      <div class="dashboard-toggle ${this._isCollapsed(`dashboard-${index}`) ? 'collapsed' : ''}">
+                        <ha-icon icon="mdi:chevron-down"></ha-icon>
+                        <span>${this._isCollapsed(`dashboard-${index}`) ? 'Expand' : 'Collapse'}</span>
+                      </div>
                     </div>
-                    <div class="dashboard-description">Dashboard with ${msg.dashboard.views ? msg.dashboard.views.length : 0} view(s)</div>
-                    ${this._renderDashboardPreview(msg.dashboard)}
-                    <div class="dashboard-actions">
-                      <ha-button
-                        @click=${() => this._approveDashboard(msg.dashboard)}
-                        .disabled=${this._isLoading}
-                      >Create Dashboard</ha-button>
-                      <ha-button
-                        @click=${() => this._rejectDashboard()}
-                        .disabled=${this._isLoading}
-                      >Cancel</ha-button>
+                    <div class="dashboard-content ${this._isCollapsed(`dashboard-${index}`) ? 'collapsed' : ''}">
+                      <div class="dashboard-description">Dashboard with ${msg.dashboard.views ? msg.dashboard.views.length : 0} view(s)</div>
+                      ${this._renderDashboardPreview(msg.dashboard)}
+                      <div class="dashboard-actions">
+                        <ha-button
+                          @click=${() => this._approveDashboard(msg.dashboard)}
+                          .disabled=${this._isLoading}
+                        >Create Dashboard</ha-button>
+                        <ha-button
+                          @click=${() => this._rejectDashboard()}
+                          .disabled=${this._isLoading}
+                        >Cancel</ha-button>
+                      </div>
                     </div>
                   </div>
                 ` : ''}
@@ -1919,6 +2060,15 @@ class AiAgentHaPanel extends LitElement {
     return details;
   }
 
+  _toggleCollapse(itemId) {
+    this._collapsedItems[itemId] = !this._collapsedItems[itemId];
+    this.requestUpdate();
+  }
+
+  _isCollapsed(itemId) {
+    return this._collapsedItems[itemId] === true;
+  }
+
   _renderDashboardPreview(dashboard) {
     if (!dashboard || !dashboard.views) {
       return html``;
@@ -1961,6 +2111,7 @@ class AiAgentHaPanel extends LitElement {
       }
     });
 
+    const previewId = `preview-${Date.now()}`;
     return html`
       <div class="preview-window">
         <div class="preview-header">
@@ -1969,8 +2120,13 @@ class AiAgentHaPanel extends LitElement {
             Preview
             <span class="preview-badge">${dashboard.views ? dashboard.views.length : 0} Views</span>
           </div>
+          <div class="preview-toggle ${this._isCollapsed(previewId) ? 'collapsed' : ''}" @click=${() => this._toggleCollapse(previewId)}>
+            <ha-icon icon="mdi:chevron-down"></ha-icon>
+            <span>${this._isCollapsed(previewId) ? 'Show' : 'Hide'}</span>
+          </div>
         </div>
-        <div class="dashboard-preview">
+        <div class="preview-content ${this._isCollapsed(previewId) ? 'collapsed' : ''}">
+          <div class="dashboard-preview">
           ${previewCards.length > 0 ? previewCards.map(card => html`
             <div class="preview-card">
               <div class="preview-card-title">${card.title}</div>
@@ -2002,6 +2158,7 @@ class AiAgentHaPanel extends LitElement {
   _renderEntityChangePreview(change) {
     if (!change) return html``;
 
+    const changePreviewId = `change-preview-${Date.now()}`;
     return html`
       <div class="preview-window">
         <div class="preview-header">
@@ -2010,8 +2167,13 @@ class AiAgentHaPanel extends LitElement {
             Change Preview
             <span class="preview-badge">${change.type || 'Update'}</span>
           </div>
+          <div class="preview-toggle ${this._isCollapsed(changePreviewId) ? 'collapsed' : ''}" @click=${() => this._toggleCollapse(changePreviewId)}>
+            <ha-icon icon="mdi:chevron-down"></ha-icon>
+            <span>${this._isCollapsed(changePreviewId) ? 'Show' : 'Hide'}</span>
+          </div>
         </div>
-        <div class="entity-change-preview">
+        <div class="preview-content ${this._isCollapsed(changePreviewId) ? 'collapsed' : ''}">
+          <div class="entity-change-preview">
           ${change.entityId ? html`
             <div class="change-item">
               <div class="change-icon">
