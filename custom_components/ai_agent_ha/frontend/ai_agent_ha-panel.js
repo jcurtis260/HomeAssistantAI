@@ -1022,7 +1022,14 @@ class AiAgentHaPanel extends LitElement {
           console.debug("Available AI providers (mapped from data/title):", this._availableProviders);
 
           if (!this._selectedProvider && this._availableProviders.length > 0) {
-            this._selectedProvider = this._availableProviders[0].value;
+            // Filter out "unknown" providers if there are valid ones
+            const validProviders = this._availableProviders.filter(p => p.value !== "unknown");
+            if (validProviders.length > 0) {
+              this._selectedProvider = validProviders[0].value;
+            } else {
+              this._selectedProvider = this._availableProviders[0].value;
+            }
+            console.debug("Auto-selected provider:", this._selectedProvider);
           }
         } else {
           console.debug("No 'ai_agent_ha' config entries found via WebSocket.");
@@ -1403,20 +1410,26 @@ class AiAgentHaPanel extends LitElement {
             <div class="input-footer">
               <div class="provider-selector">
                 <span class="provider-label">Model:</span>
-                <select
-                  class="provider-button"
-                  @change=${(e) => this._selectProvider(e.target.value)}
-                  .value=${this._selectedProvider || ''}
-                >
-                  ${this._availableProviders.map(provider => html`
-                    <option
-                      value=${provider.value}
-                      ?selected=${provider.value === this._selectedProvider}
-                    >
-                      ${provider.label}
-                    </option>
-                  `)}
-                </select>
+                ${this._availableProviders.length > 0 ? html`
+                  <select
+                    class="provider-button"
+                    @change=${(e) => this._selectProvider(e.target.value)}
+                    .value=${this._selectedProvider || this._availableProviders[0]?.value || ''}
+                  >
+                    ${this._availableProviders.map(provider => html`
+                      <option
+                        value=${provider.value}
+                        ?selected=${provider.value === (this._selectedProvider || this._availableProviders[0]?.value)}
+                      >
+                        ${provider.label}
+                      </option>
+                    `)}
+                  </select>
+                ` : html`
+                  <div class="provider-button" style="color: #94a3b8;">
+                    No providers configured
+                  </div>
+                `}
               </div>
 
               <ha-button
