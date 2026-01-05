@@ -42,7 +42,6 @@ class AiAgentHaPanel extends LitElement {
       _aiResponse: { type: String, reflect: false, attribute: false },
       _collapsedItems: { type: Object, reflect: false, attribute: false },
       _customSystemPrompt: { type: String, reflect: false, attribute: false },
-      _showOptionsDialog: { type: Boolean, reflect: false, attribute: false },
       _expandedDetails: { type: Object, reflect: false, attribute: false }
     };
   }
