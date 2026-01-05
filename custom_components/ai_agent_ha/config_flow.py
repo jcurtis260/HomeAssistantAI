@@ -152,7 +152,7 @@ class AiAgentHaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ig
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
         try:
-            return AiAgentHaOptionsFlowHandler()
+            return AiAgentHaOptionsFlowHandler(config_entry)
         except Exception as e:
             _LOGGER.error("Error creating options flow: %s", e)
             return None
@@ -317,91 +317,39 @@ class InvalidApiKey(HomeAssistantError):
 class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow for HomeMind Ai."""
 
-    def __init__(self):
+    def __init__(self, config_entry):
         """Initialize options flow."""
+        self.config_entry = config_entry
         self.options_data = {}
 
     async def async_step_init(self, user_input=None):
-        """Handle the initial options step - provider selection and default settings."""
+        """Handle the initial options step - provider selection."""
         current_provider = self.config_entry.data.get("ai_provider", DEFAULT_PROVIDER)
-        default_provider = self.config_entry.data.get(CONF_DEFAULT_PROVIDER, current_provider)
-        
-        # Get all configured providers
-        all_entries = self.hass.config_entries.async_entries(DOMAIN)
-        configured_providers = [entry.data.get("ai_provider") for entry in all_entries if entry.data.get("ai_provider")]
-        
+
         if user_input is not None:
-            # Store selected provider and default provider/model
+            # Store selected provider and move to configure step
             selected_provider = user_input["ai_provider"]
-            selected_default_provider = user_input.get(CONF_DEFAULT_PROVIDER, default_provider)
-            selected_default_model = user_input.get(CONF_DEFAULT_MODEL, "")
-            
-            # Update default provider/model in config entry
-            updated_data = dict(self.config_entry.data)
-            updated_data[CONF_DEFAULT_PROVIDER] = selected_default_provider
-            if selected_default_model:
-                updated_data[CONF_DEFAULT_MODEL] = selected_default_model
-            elif CONF_DEFAULT_MODEL in updated_data:
-                del updated_data[CONF_DEFAULT_MODEL]
-            
-            self.hass.config_entries.async_update_entry(self.config_entry, data=updated_data)
-            
             self.options_data = {
                 "ai_provider": selected_provider,
                 "current_provider": current_provider,
             }
             return await self.async_step_configure_options()
 
-        # Build default provider options from configured providers
-        default_provider_options = [
-            {"value": p, "label": PROVIDERS.get(p, p)} 
-            for p in configured_providers if p in PROVIDERS
-        ]
-        if not default_provider_options:
-            default_provider_options = [{"value": current_provider, "label": PROVIDERS[current_provider]}]
-        
-        # Get default model options for the selected default provider
-        default_model_options = []
-        if default_provider in configured_providers:
-            # Find the entry for this provider
-            default_entry = next((e for e in all_entries if e.data.get("ai_provider") == default_provider), None)
-            if default_entry:
-                models_config = default_entry.data.get("models", {})
-                default_model = models_config.get(default_provider, DEFAULT_MODELS.get(default_provider, ""))
-                available_models = AVAILABLE_MODELS.get(default_provider, [])
-                default_model_options = [{"value": m, "label": m} for m in available_models]
-                if default_model and default_model not in [m["value"] for m in default_model_options]:
-                    default_model_options.insert(0, {"value": default_model, "label": default_model})
-        
-        schema_dict = {
-            vol.Required(
-                "ai_provider", default=current_provider
-            ): SelectSelector(
-                SelectSelectorConfig(
-                    options=[
-                        {"value": k, "label": v} for k, v in PROVIDERS.items()
-                    ]
-                )
-            ),
-            vol.Required(
-                CONF_DEFAULT_PROVIDER, default=default_provider
-            ): SelectSelector(
-                SelectSelectorConfig(
-                    options=default_provider_options
-                )
-            ),
-        }
-        
-        # Add default model selector if we have options
-        if default_model_options:
-            current_default_model = self.config_entry.data.get(CONF_DEFAULT_MODEL, "")
-            schema_dict[vol.Optional(CONF_DEFAULT_MODEL, default=current_default_model)] = SelectSelector(
-                SelectSelectorConfig(options=default_model_options)
-            )
-
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(schema_dict),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "ai_provider", default=current_provider
+                    ): SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                {"value": k, "label": v} for k, v in PROVIDERS.items()
+                            ]
+                        )
+                    ),
+                }
+            ),
             description_placeholders={"current_provider": PROVIDERS[current_provider]},
         )
 

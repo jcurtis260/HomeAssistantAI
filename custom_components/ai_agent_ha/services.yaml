@@ -1,78 +1,60 @@
 query:
-  name: "Query AI Agent with Home Assistant context"
-  description: "Run a custom AI prompt against your Home Assistant state dump."
+  name: Query
+  description: Send a query to the AI agent
   fields:
     prompt:
-      description: "The question or instruction to send to the AI model."
-      example: "Turn on all the lights in the living room"
+      name: Prompt
+      description: The query to send to the AI
+      required: true
+      selector:
+        text:
     provider:
-      description: "The AI provider to use (openai, llama, gemini, openrouter)"
-      example: "openai"
-      default: "openai"
+      name: Provider
+      description: The AI provider to use (optional, uses default if not specified)
+      required: false
       selector:
         select:
           options:
-            - "openai"
-            - "llama"
-            - "gemini"
-            - "openrouter"
+            - openai
+            - gemini
+            - openrouter
+            - anthropic
+            - llama
+            - alter
+            - local
 
-create_dashboard:
-  name: "Create Dashboard via AI Agent"
-  description: "Create a new Home Assistant dashboard using AI assistance."
+save_prompt_history:
+  name: Save Prompt History
+  description: Save prompt history to storage
   fields:
-    dashboard_config:
-      description: "The dashboard configuration as a JSON object."
-      example: '{"title": "My Dashboard", "url_path": "my-dashboard", "views": []}'
-    provider:
-      description: "The AI provider to use (openai, llama, gemini, openrouter)"
-      example: "openai"
-      default: "openai"
+    custom_system_prompt:
+      name: Custom System Prompt
+      description: Custom system prompt to save
+      required: false
       selector:
-        select:
-          options:
-            - "openai"
-            - "llama"
-            - "gemini"
-            - "openrouter"
+        text:
 
-create_automation:
-  name: "Create Automation via AI Agent"
-  description: "Create a new Home Assistant automation using AI assistance."
+set_default_provider:
+  name: Set Default Provider
+  description: Set the default provider and model for HomeMind Ai
   fields:
-    automation:
-      description: "The automation configuration as a JSON object."
-      example: '{"alias": "Turn off lights at 9 PM", "trigger": [{"platform": "time", "at": "21:00:00"}], "action": [{"service": "light.turn_off", "target": {"entity_id": "light.living_room"}}]}'
-    provider:
-      description: "The AI provider to use (openai, llama, gemini, openrouter)"
-      example: "openai"
-      default: "openai"
+    default_provider:
+      name: Default Provider
+      description: The provider to use by default when opening HomeMind Ai
+      required: true
       selector:
         select:
           options:
-            - "openai"
-            - "llama"
-            - "gemini"
-            - "openrouter"
-
-update_dashboard:
-  name: "Update Dashboard via AI Agent"
-  description: "Update an existing Home Assistant dashboard using AI assistance."
-  fields:
-    dashboard_url:
-      description: "The URL path of the dashboard to update."
-      example: "my-dashboard"
-    dashboard_config:
-      description: "The updated dashboard configuration as a JSON object."
-      example: '{"title": "Updated Dashboard", "views": []}'
-    provider:
-      description: "The AI provider to use (openai, llama, gemini, openrouter)"
-      example: "openai"
-      default: "openai"
+            - openai
+            - gemini
+            - openrouter
+            - anthropic
+            - llama
+            - alter
+            - local
+    default_model:
+      name: Default Model
+      description: The model to use by default (optional, uses provider's default if not set)
+      required: false
       selector:
-        select:
-          options:
-            - "openai"
-            - "llama"
-            - "gemini"
-            - "openrouter"
+        text:

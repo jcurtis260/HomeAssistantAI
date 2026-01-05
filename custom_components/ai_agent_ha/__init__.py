@@ -81,7 +81,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             )
 
         if DOMAIN not in hass.data:
-            hass.data[DOMAIN] = {"agents": {}, "configs": {}}
+            hass.data[DOMAIN] = {"agents": {}, "configs": {}, "default_provider": None, "default_model": None}
 
         provider = config_data["ai_provider"]
 
@@ -100,6 +100,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         # Store config for this provider
         hass.data[DOMAIN]["configs"][provider] = config_data
+        
+        # Load default provider/model from any config entry (use first one found)
+        if hass.data[DOMAIN].get("default_provider") is None:
+            default_provider = config_data.get(CONF_DEFAULT_PROVIDER)
+            default_model = config_data.get(CONF_DEFAULT_MODEL)
+            if default_provider:
+                hass.data[DOMAIN]["default_provider"] = default_provider
+                hass.data[DOMAIN]["default_model"] = default_model
 
         # Create agent for this provider
         _LOGGER.debug(

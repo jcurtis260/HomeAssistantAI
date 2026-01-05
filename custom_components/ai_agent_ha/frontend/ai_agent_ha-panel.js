@@ -1500,11 +1500,13 @@ class AiAgentHaPanel extends LitElement {
           }
 
           if (!this._selectedProvider && this._availableProviders.length > 0) {
-            // Check for default provider from config entry
+            // Check for default provider from any config entry
             let defaultProvider = null;
+            let defaultModel = null;
             for (const entry of aiAgentEntries) {
               if (entry.data?.default_provider) {
                 defaultProvider = entry.data.default_provider;
+                defaultModel = entry.data.default_model || null;
                 break;
               }
             }
@@ -1515,6 +1517,7 @@ class AiAgentHaPanel extends LitElement {
               if (providerExists) {
                 this._selectedProvider = defaultProvider;
                 console.debug("Using default provider from config:", defaultProvider);
+                // If default model is set, we could use it here, but model selection is handled separately
               } else {
                 // Default provider not available, use first valid
                 const validProviders = this._availableProviders.filter(p => p.value !== "unknown");
