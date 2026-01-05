@@ -36,7 +36,9 @@ class AiAgentHaPanel extends LitElement {
       _statusDetails: { type: String, reflect: false, attribute: false },
       _showStatusDetails: { type: Boolean, reflect: false, attribute: false },
       _requestStartTime: { type: Number, reflect: false, attribute: false },
-      _elapsedTime: { type: Number, reflect: false, attribute: false }
+      _elapsedTime: { type: Number, reflect: false, attribute: false },
+      _currentPrompt: { type: String, reflect: false, attribute: false },
+      _statusLog: { type: Array, reflect: false, attribute: false }
     };
   }
 
@@ -606,6 +608,8 @@ class AiAgentHaPanel extends LitElement {
     this._showStatusDetails = false;
     this._requestStartTime = null;
     this._elapsedTime = 0;
+    this._currentPrompt = '';
+    this._statusLog = [];
     this._predefinedPrompts = [
       "Build a new automation to turn off all lights at 10:00 PM every day",
       "What's the current temperature inside and outside?",
@@ -1037,7 +1041,7 @@ class AiAgentHaPanel extends LitElement {
                 </div>
                 ${this._showStatusDetails ? html`
                   <div class="status-details">
-                    ${this._statusDetails || 'Waiting for response...\n\nThe AI agent is processing your request. This may take a few moments depending on the complexity of your query.'}
+                    ${this._statusDetails || this._buildDefaultStatusDetails()}
                   </div>
                 ` : ''}
               </div>
@@ -1156,7 +1160,9 @@ class AiAgentHaPanel extends LitElement {
     this._isLoading = true;
     this._error = null;
     this._requestStartTime = Date.now();
-    this._statusDetails = 'Sending request to AI service...';
+    this._currentPrompt = prompt;
+    this._statusLog = [];
+    this._addStatusLog('📤 Sending request to AI service...', `Prompt: "${prompt}"`);
     this._showStatusDetails = false;
 
     // Clear any existing timeout
@@ -1170,14 +1176,15 @@ class AiAgentHaPanel extends LitElement {
         const elapsed = Math.floor((Date.now() - this._requestStartTime) / 1000);
         this._elapsedTime = elapsed; // Store elapsed time for reactive updates
         
-        if (elapsed < 10) {
-          this._statusDetails = `Sending request to AI service... (${elapsed}s)`;
-        } else if (elapsed < 30) {
-          this._statusDetails = `Waiting for AI response... (${elapsed}s)\nThis may take a moment for complex requests.`;
+        // Update status message based on elapsed time
+        if (elapsed < 10 && this._statusLog.length === 1) {
+          this._updateStatusMessage(`Waiting for AI to process request... (${elapsed}s)`);
+        } else if (elapsed < 30 && this._statusLog.length <= 2) {
+          this._updateStatusMessage(`AI is analyzing your request... (${elapsed}s)`);
         } else if (elapsed < 120) {
-          this._statusDetails = `Processing request... (${elapsed}s)\nThe AI is analyzing your Home Assistant data and generating a response.`;
+          this._updateStatusMessage(`Processing request... (${elapsed}s)\nThe AI may be querying Home Assistant data.`);
         } else {
-          this._statusDetails = `Still processing... (${elapsed}s)\nComplex operations may take longer. The AI is working on your request.`;
+          this._updateStatusMessage(`Still processing... (${elapsed}s)\nComplex operations may take longer.`);
         }
         this.requestUpdate();
       } else {
@@ -1229,6 +1236,7 @@ class AiAgentHaPanel extends LitElement {
     this._requestStartTime = null;
     this._elapsedTime = 0;
     this._statusDetails = '';
+    this._currentPrompt = '';
     if (this._serviceCallTimeout) {
       clearTimeout(this._serviceCallTimeout);
       this._serviceCallTimeout = null;
@@ -1239,10 +1247,58 @@ class AiAgentHaPanel extends LitElement {
     }
   }
 
+  _addStatusLog(message, details = '') {
+    const timestamp = new Date().toLocaleTimeString();
+    this._statusLog.push({
+      timestamp,
+      message,
+      details
+    });
+    // Keep only last 20 log entries
+    if (this._statusLog.length > 20) {
+      this._statusLog.shift();
+    }
+    this._updateStatusDetails();
+  }
+
+  _updateStatusMessage(message) {
+    // Update the main status message without adding to log
+    this._statusDetails = message;
+  }
+
+  _updateStatusDetails() {
+    // Build detailed status from log
+    let details = `📋 Request Details:\n`;
+    details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    details += `📤 Sent to AI:\n`;
+    details += `"${this._currentPrompt}"\n\n`;
+    
+    if (this._statusLog.length > 0) {
+      details += `📊 Processing Steps:\n`;
+      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      this._statusLog.forEach((log, index) => {
+        details += `\n[${log.timestamp}] ${log.message}`;
+        if (log.details) {
+          details += `\n   ${log.details}`;
+        }
+      });
+    }
+    
+    this._statusDetails = details;
+  }
+
   _handleLlamaResponse(event) {
     console.debug("Received llama response:", event);
     
     try {
+      // Log the response received
+      if (event.data && event.data.answer) {
+        const answerPreview = event.data.answer.length > 200 
+          ? event.data.answer.substring(0, 200) + '...' 
+          : event.data.answer;
+        this._addStatusLog('📥 Received response from AI', `Response: ${answerPreview}`);
+      }
+      
       this._clearLoadingState();
     if (event.data.success) {
       // Check if the answer is empty
@@ -1470,6 +1526,17 @@ class AiAgentHaPanel extends LitElement {
 
   _hasProviders() {
     return this._availableProviders && this._availableProviders.length > 0;
+  }
+
+  _buildDefaultStatusDetails() {
+    let details = `📋 Request Details:\n`;
+    details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    details += `📤 Sent to AI:\n`;
+    details += `"${this._currentPrompt || 'No prompt yet'}"\n\n`;
+    details += `⏳ Status:\n`;
+    details += `Waiting for response...\n\n`;
+    details += `The AI agent is processing your request. This may take a few moments depending on the complexity of your query.`;
+    return details;
   }
 }
 
