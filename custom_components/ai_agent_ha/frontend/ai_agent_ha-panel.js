@@ -1580,21 +1580,23 @@ class AiAgentHaPanel extends LitElement {
   }
 
   render() {
-    if (!this.hass) {
-      return html`
-        <div style="padding: 20px; color: #e0e7ff;">
-          <ha-icon icon="mdi:loading" style="animation: spin 1s linear infinite;"></ha-icon>
-          Loading HomeMind Ai...
-        </div>
-      `;
-    }
+    try {
+      if (!this.hass) {
+        console.log("⚠️ DEBUG: hass not available, showing loading state");
+        return html`
+          <div style="padding: 20px; color: #e0e7ff; text-align: center; margin-top: 50px;">
+            <ha-icon icon="mdi:loading" style="animation: spin 1s linear infinite; --mdc-icon-size: 48px;"></ha-icon>
+            <div style="margin-top: 16px; font-size: 16px;">Loading HomeMind Ai...</div>
+            <div style="margin-top: 8px; font-size: 12px; color: #94a3b8;">Waiting for Home Assistant connection...</div>
+          </div>
+        `;
+      }
 
-    console.debug("Rendering with state:", {
-      messages: this._messages,
-      isLoading: this._isLoading,
-      error: this._error
-    });
-    console.debug("Messages array:", this._messages);
+      console.log("✅ DEBUG: Rendering panel with hass available");
+      console.log("   Messages:", this._messages?.length || 0);
+      console.log("   Loading:", this._isLoading);
+      console.log("   Error:", this._error);
+      console.log("   Provider:", this._selectedProvider);
 
     return html`
       <div class="header">
@@ -2608,6 +2610,10 @@ class AiAgentHaPanel extends LitElement {
   }
 }
 
-customElements.define("ai_agent_ha-panel", AiAgentHaPanel);
-
-console.log("HomeMind Ai Panel registered");
+try {
+  customElements.define("ai_agent_ha-panel", AiAgentHaPanel);
+  console.log("✅ HomeMind Ai Panel registered successfully");
+} catch (error) {
+  console.error("❌ ERROR: Failed to register HomeMind Ai Panel:", error);
+  console.error("   Error details:", error.message, error.stack);
+}
