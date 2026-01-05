@@ -37,7 +37,7 @@ After submitting a security vulnerability report:
 
 ### Security Considerations
 
-The AI Agent HA integration:
+The HomeMind Ai integration:
 
 - Stores API keys securely in Home Assistant's encrypted storage
 - Uses HTTPS for all communications with AI providers

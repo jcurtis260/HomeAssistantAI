@@ -104,13 +104,13 @@ git push
    - Click Add
 
 2. **Install**:
-   - Find "AI Agent HA" in the integration list
+   - Find "HomeMind Ai" in the integration list
    - Click Download
    - Restart Home Assistant
 
 3. **Configure**:
    - Go to Settings → Devices & Services → Add Integration
-   - Search for "AI Agent HA"
+   - Search for "HomeMind Ai"
    - Follow the setup wizard
 
 ### Option 2: Manual Installation
@@ -128,7 +128,7 @@ git push
 
 4. **Configure**:
    - Go to Settings → Devices & Services → Add Integration
-   - Search for "AI Agent HA"
+   - Search for "HomeMind Ai"
    - Follow the setup wizard
 
 ## 🔄 Updating the Integration
