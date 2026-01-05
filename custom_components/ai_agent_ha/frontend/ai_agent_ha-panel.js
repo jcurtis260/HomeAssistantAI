@@ -575,11 +575,18 @@ class AiAgentHaPanel extends LitElement {
         border-color: rgba(99, 102, 241, 0.4);
         background: rgba(0, 0, 0, 0.4);
       }
+      .status-persistent {
+        margin-top: 12px;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+      }
       .detail-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 12px;
+        padding: 6px 8px;
         cursor: pointer;
         user-select: none;
         transition: background 0.2s ease;
@@ -590,17 +597,17 @@ class AiAgentHaPanel extends LitElement {
       .detail-title {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 12px;
+        gap: 6px;
+        font-size: 11px;
         font-weight: 600;
         color: #a5b4fc;
       }
       .detail-title ha-icon {
-        --mdc-icon-size: 16px;
+        --mdc-icon-size: 14px;
         color: #6366f1;
       }
       .detail-toggle {
-        --mdc-icon-size: 18px;
+        --mdc-icon-size: 16px;
         color: #94a3b8;
         transition: transform 0.2s ease;
       }
@@ -617,21 +624,21 @@ class AiAgentHaPanel extends LitElement {
       }
       .detail-text {
         margin: 0;
-        padding: 12px;
-        font-size: 11px;
+        padding: 8px;
+        font-size: 10px;
         font-family: 'Courier New', monospace;
         color: #cbd5e1;
         white-space: pre-wrap;
         word-break: break-word;
         background: rgba(0, 0, 0, 0.2);
         border-top: 1px solid rgba(99, 102, 241, 0.1);
-        line-height: 1.5;
+        line-height: 1.4;
         overflow-x: auto;
       }
       .step-item {
         display: flex;
-        gap: 10px;
-        padding: 8px 12px;
+        gap: 8px;
+        padding: 4px 8px;
         border-top: 1px solid rgba(99, 102, 241, 0.1);
         transition: background 0.2s ease;
       }
@@ -642,9 +649,9 @@ class AiAgentHaPanel extends LitElement {
         background: rgba(99, 102, 241, 0.05);
       }
       .step-time {
-        font-size: 10px;
+        font-size: 9px;
         color: #94a3b8;
-        min-width: 70px;
+        min-width: 60px;
         flex-shrink: 0;
         font-family: monospace;
       }
@@ -653,22 +660,24 @@ class AiAgentHaPanel extends LitElement {
         min-width: 0;
       }
       .step-message {
-        font-size: 11px;
+        font-size: 10px;
         color: #e0e7ff;
         font-weight: 500;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
+        line-height: 1.3;
       }
       .step-details {
-        font-size: 10px;
+        font-size: 9px;
         color: #cbd5e1;
         font-family: monospace;
         white-space: pre-wrap;
         word-break: break-word;
-        padding: 6px 8px;
+        padding: 4px 6px;
         background: rgba(99, 102, 241, 0.1);
-        border-radius: 4px;
-        margin-top: 4px;
+        border-radius: 3px;
+        margin-top: 2px;
         border-left: 2px solid #6366f1;
+        line-height: 1.3;
       }
       @keyframes slideDown {
         from {
@@ -1320,6 +1329,8 @@ class AiAgentHaPanel extends LitElement {
     this.providersLoaded = false;
     this._eventSubscriptionSetup = false;
     this._serviceCallTimeout = null;
+    // Load saved provider preference
+    this._loadSelectedProvider();
     console.debug("HomeMind Ai Panel constructor called");
   }
 
@@ -1480,7 +1491,20 @@ class AiAgentHaPanel extends LitElement {
             } else {
               this._selectedProvider = this._availableProviders[0].value;
             }
+            // Save the auto-selected provider
+            this._saveSelectedProvider(this._selectedProvider);
             console.debug("Auto-selected provider:", this._selectedProvider);
+          } else if (this._selectedProvider) {
+            // Verify saved provider still exists in available providers
+            const providerExists = this._availableProviders.some(p => p.value === this._selectedProvider);
+            if (!providerExists) {
+              // Saved provider no longer available, select first valid one
+              const validProviders = this._availableProviders.filter(p => p.value !== "unknown");
+              if (validProviders.length > 0) {
+                this._selectedProvider = validProviders[0].value;
+                this._saveSelectedProvider(this._selectedProvider);
+              }
+            }
           }
         } else {
           console.debug("No 'ai_agent_ha' config entries found via WebSocket.");
