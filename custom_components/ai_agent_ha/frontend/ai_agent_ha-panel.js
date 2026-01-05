@@ -45,22 +45,40 @@ class AiAgentHaPanel extends LitElement {
   static get styles() {
     return css`
       :host {
-        background: var(--primary-background-color);
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
         -webkit-font-smoothing: antialiased;
         display: flex;
         flex-direction: column;
         height: 100vh;
+        position: relative;
+        overflow: hidden;
+      }
+      :host::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
       }
       .header {
-        background: var(--app-header-background-color);
-        color: var(--app-header-text-color);
+        background: rgba(15, 20, 25, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+        color: #e0e7ff;
         padding: 16px 24px;
         display: flex;
         align-items: center;
         gap: 12px;
         font-size: 20px;
-        font-weight: 500;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-weight: 600;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(99, 102, 241, 0.1);
         position: relative;
         z-index: 100;
       }
@@ -124,14 +142,20 @@ class AiAgentHaPanel extends LitElement {
       }
       .messages {
         overflow-y: auto;
-        border: 1px solid var(--divider-color);
-        border-radius: 12px;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 20px;
         margin-bottom: 24px;
         padding: 0;
-        background: var(--primary-background-color);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background: rgba(15, 20, 25, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
         flex-grow: 1;
         width: 100%;
+        position: relative;
+        z-index: 1;
       }
       .prompts-section {
         margin-bottom: 12px;
@@ -237,38 +261,68 @@ class AiAgentHaPanel extends LitElement {
       }
       .message {
         margin-bottom: 16px;
-        padding: 12px 16px;
-        border-radius: 12px;
+        padding: 16px 20px;
+        border-radius: 16px;
         max-width: 80%;
-        line-height: 1.5;
-        animation: fadeIn 0.3s ease-out;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        line-height: 1.6;
+        animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         word-wrap: break-word;
+        position: relative;
+        overflow: hidden;
+      }
+      .message::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.1;
+        pointer-events: none;
       }
       .user-message {
-        background: var(--primary-color);
-        color: var(--text-primary-color);
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(168, 85, 247, 0.9) 100%);
+        color: #ffffff;
         margin-left: auto;
         border-bottom-right-radius: 4px;
+        box-shadow: 
+          0 4px 20px rgba(99, 102, 241, 0.4),
+          0 0 30px rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
       }
       .assistant-message {
-        background: var(--secondary-background-color);
+        background: rgba(30, 35, 50, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #e0e7ff;
         margin-right: auto;
         border-bottom-left-radius: 4px;
+        box-shadow: 
+          0 4px 20px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(99, 102, 241, 0.3);
       }
       .input-container {
         position: relative;
         width: 100%;
-        background: var(--card-background-color);
-        border: 1px solid var(--divider-color);
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background: rgba(15, 20, 25, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 2px solid rgba(99, 102, 241, 0.3);
+        border-radius: 20px;
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
         margin-bottom: 24px;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        transition: all 0.3s ease;
+        z-index: 1;
       }
       .input-container:focus-within {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+        border-color: rgba(99, 102, 241, 0.6);
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          0 0 40px rgba(99, 102, 241, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
       .input-main {
         display: flex;
@@ -350,21 +404,23 @@ class AiAgentHaPanel extends LitElement {
         margin-right: 8px;
       }
       .send-button {
-        --mdc-theme-primary: var(--primary-color);
-        --mdc-theme-on-primary: var(--text-primary-color);
+        --mdc-theme-primary: #6366f1;
+        --mdc-theme-on-primary: #ffffff;
         --mdc-typography-button-font-size: 14px;
         --mdc-typography-button-text-transform: none;
         --mdc-typography-button-letter-spacing: 0;
-        --mdc-typography-button-font-weight: 500;
-        --mdc-button-height: 36px;
-        --mdc-button-padding: 0 16px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
+        --mdc-typography-button-font-weight: 600;
+        --mdc-button-height: 40px;
+        --mdc-button-padding: 0 20px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
         min-width: 80px;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
       }
       .send-button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 30px rgba(99, 102, 241, 0.6);
       }
       .send-button:active {
         transform: translateY(0);
@@ -372,19 +428,25 @@ class AiAgentHaPanel extends LitElement {
       .send-button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        box-shadow: none;
       }
       .loading {
         display: flex;
         flex-direction: column;
         gap: 8px;
         margin-bottom: 16px;
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: var(--secondary-background-color);
-        border: 1px solid var(--divider-color);
+        padding: 16px 20px;
+        border-radius: 16px;
+        background: rgba(30, 35, 50, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(99, 102, 241, 0.3);
         margin-right: auto;
         max-width: 80%;
-        animation: fadeIn 0.3s ease-out;
+        animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 
+          0 4px 20px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
       .loading-header {
         display: flex;
@@ -402,11 +464,12 @@ class AiAgentHaPanel extends LitElement {
         gap: 4px;
       }
       .dot {
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
-        background: var(--primary-color);
+        background: linear-gradient(135deg, #6366f1, #a855f7);
         animation: bounce 1.4s infinite ease-in-out;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
       }
       .dot:nth-child(1) { animation-delay: -0.32s; }
       .dot:nth-child(2) { animation-delay: -0.16s; }
@@ -532,25 +595,48 @@ class AiAgentHaPanel extends LitElement {
         border: 1px solid var(--divider-color);
       }
       .dashboard-suggestion {
-        background: var(--secondary-background-color);
-        border: 1px solid var(--info-color, #2196f3);
-        border-radius: 12px;
-        padding: 16px;
-        margin: 8px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background: rgba(15, 20, 25, 0.9);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 2px solid rgba(99, 102, 241, 0.5);
+        border-radius: 20px;
+        padding: 20px;
+        margin: 12px 0;
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.4),
+          0 0 60px rgba(99, 102, 241, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
         position: relative;
         z-index: 10;
+        animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+      }
+      .dashboard-suggestion::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #6366f1);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
       }
       .dashboard-title {
-        font-weight: 500;
-        margin-bottom: 8px;
-        color: var(--info-color, #2196f3);
-        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #a5b4fc;
+        font-size: 18px;
+        text-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
       .dashboard-description {
-        margin-bottom: 16px;
-        color: var(--secondary-text-color);
-        line-height: 1.4;
+        margin-bottom: 20px;
+        color: #cbd5e1;
+        line-height: 1.5;
+        font-size: 14px;
       }
       .dashboard-actions {
         display: flex;
@@ -576,7 +662,7 @@ class AiAgentHaPanel extends LitElement {
       .dashboard-details {
         margin-top: 8px;
         padding: 8px;
-        background: var(--primary-background-color);
+        background: rgba(0, 0, 0, 0.3);
         border-radius: 8px;
         font-family: monospace;
         font-size: 12px;
@@ -584,7 +670,137 @@ class AiAgentHaPanel extends LitElement {
         overflow-x: auto;
         max-height: 200px;
         overflow-y: auto;
-        border: 1px solid var(--divider-color);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        color: #94a3b8;
+      }
+      .preview-window {
+        margin: 16px 0;
+        background: rgba(0, 0, 0, 0.4);
+        border: 2px solid rgba(99, 102, 241, 0.4);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+      .preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+      }
+      .preview-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #a5b4fc;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .preview-badge {
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .dashboard-preview {
+        display: grid;
+        gap: 12px;
+      }
+      .preview-card {
+        background: rgba(30, 35, 50, 0.6);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 12px;
+        padding: 16px;
+        transition: all 0.3s ease;
+      }
+      .preview-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        border-color: rgba(99, 102, 241, 0.6);
+      }
+      .preview-card-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #cbd5e1;
+        margin-bottom: 8px;
+      }
+      .preview-card-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .preview-entity {
+        background: rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #a5b4fc;
+      }
+      .entity-change-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .change-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(30, 35, 50, 0.6);
+        border-radius: 12px;
+        border-left: 3px solid #6366f1;
+      }
+      .change-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+      }
+      .change-details {
+        flex: 1;
+      }
+      .change-label {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-bottom: 4px;
+      }
+      .change-value {
+        font-size: 14px;
+        color: #e0e7ff;
+        font-weight: 500;
+      }
+      .change-arrow {
+        color: #6366f1;
+        font-size: 20px;
+      }
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .no-providers {
         color: var(--error-color);
@@ -991,11 +1207,12 @@ class AiAgentHaPanel extends LitElement {
                 ` : ''}
                 ${msg.dashboard ? html`
                   <div class="dashboard-suggestion">
-                    <div class="dashboard-title">${msg.dashboard.title}</div>
-                    <div class="dashboard-description">Dashboard with ${msg.dashboard.views ? msg.dashboard.views.length : 0} view(s)</div>
-                    <div class="dashboard-details">
-                      ${JSON.stringify(msg.dashboard, null, 2)}
+                    <div class="dashboard-title">
+                      <ha-icon icon="mdi:view-dashboard"></ha-icon>
+                      ${msg.dashboard.title}
                     </div>
+                    <div class="dashboard-description">Dashboard with ${msg.dashboard.views ? msg.dashboard.views.length : 0} view(s)</div>
+                    ${this._renderDashboardPreview(msg.dashboard)}
                     <div class="dashboard-actions">
                       <ha-button
                         @click=${() => this._approveDashboard(msg.dashboard)}
@@ -1007,6 +1224,9 @@ class AiAgentHaPanel extends LitElement {
                       >Cancel</ha-button>
                     </div>
                   </div>
+                ` : ''}
+                ${msg.entityChange ? html`
+                  ${this._renderEntityChangePreview(msg.entityChange)}
                 ` : ''}
               </div>
             `)}
@@ -1555,3 +1775,153 @@ class AiAgentHaPanel extends LitElement {
 customElements.define("ai_agent_ha-panel", AiAgentHaPanel);
 
 console.log("HomeMind Ai Panel registered");
+
+  _renderDashboardPreview(dashboard) {
+    if (!dashboard || !dashboard.views) {
+      return html``;
+    }
+
+    const previewCards = [];
+    dashboard.views.forEach((view, viewIndex) => {
+      if (view.cards) {
+        view.cards.forEach((card, cardIndex) => {
+          if (card.type === 'entities' && card.entities) {
+            previewCards.push({
+              title: card.title || `View ${viewIndex + 1} - Card ${cardIndex + 1}`,
+              entities: card.entities.slice(0, 6), // Show first 6 entities
+              type: 'entities'
+            });
+          } else if (card.type === 'light' && card.entity) {
+            previewCards.push({
+              title: card.name || card.entity,
+              entities: [card.entity],
+              type: 'light'
+            });
+          } else if (card.type === 'button' && card.name) {
+            previewCards.push({
+              title: card.name,
+              entities: [],
+              type: 'button'
+            });
+          } else if (card.type === 'grid' && card.cards) {
+            card.cards.forEach(subCard => {
+              if (subCard.name) {
+                previewCards.push({
+                  title: subCard.name,
+                  entities: [],
+                  type: 'button'
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    return html`
+      <div class="preview-window">
+        <div class="preview-header">
+          <div class="preview-title">
+            <ha-icon icon="mdi:eye"></ha-icon>
+            Preview
+            <span class="preview-badge">${dashboard.views ? dashboard.views.length : 0} Views</span>
+          </div>
+        </div>
+        <div class="dashboard-preview">
+          ${previewCards.length > 0 ? previewCards.map(card => html`
+            <div class="preview-card">
+              <div class="preview-card-title">${card.title}</div>
+              ${card.entities.length > 0 ? html`
+                <div class="preview-card-content">
+                  ${card.entities.map(entity => html`
+                    <div class="preview-entity">${typeof entity === 'string' ? entity : entity.entity || entity}</div>
+                  `)}
+                </div>
+              ` : html`
+                <div class="preview-card-content">
+                  <div class="preview-entity">${card.type === 'button' ? 'Button Control' : 'Card'}</div>
+                </div>
+              `}
+            </div>
+          `) : html`
+            <div class="preview-card">
+              <div class="preview-card-title">Dashboard Preview</div>
+              <div class="preview-card-content">
+                <div class="preview-entity">${dashboard.title}</div>
+              </div>
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderEntityChangePreview(change) {
+    if (!change) return html``;
+
+    return html`
+      <div class="preview-window">
+        <div class="preview-header">
+          <div class="preview-title">
+            <ha-icon icon="mdi:swap-horizontal"></ha-icon>
+            Change Preview
+            <span class="preview-badge">${change.type || 'Update'}</span>
+          </div>
+        </div>
+        <div class="entity-change-preview">
+          ${change.entityId ? html`
+            <div class="change-item">
+              <div class="change-icon">
+                <ha-icon icon="mdi:tag"></ha-icon>
+              </div>
+              <div class="change-details">
+                <div class="change-label">Entity</div>
+                <div class="change-value">${change.entityId}</div>
+              </div>
+            </div>
+          ` : ''}
+          ${change.oldName && change.newName ? html`
+            <div class="change-item">
+              <div class="change-icon">
+                <ha-icon icon="mdi:rename-box"></ha-icon>
+              </div>
+              <div class="change-details">
+                <div class="change-label">Name Change</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="change-value">${change.oldName}</div>
+                  <ha-icon icon="mdi:arrow-right" class="change-arrow"></ha-icon>
+                  <div class="change-value" style="color: #a5b4fc;">${change.newName}</div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+          ${change.oldState !== undefined && change.newState !== undefined ? html`
+            <div class="change-item">
+              <div class="change-icon">
+                <ha-icon icon="mdi:state-machine"></ha-icon>
+              </div>
+              <div class="change-details">
+                <div class="change-label">State Change</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="change-value">${change.oldState}</div>
+                  <ha-icon icon="mdi:arrow-right" class="change-arrow"></ha-icon>
+                  <div class="change-value" style="color: #a5b4fc;">${change.newState}</div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+          ${change.attributes ? html`
+            <div class="change-item">
+              <div class="change-icon">
+                <ha-icon icon="mdi:format-list-bulleted"></ha-icon>
+              </div>
+              <div class="change-details">
+                <div class="change-label">Attributes</div>
+                <div class="change-value">${Object.keys(change.attributes).length} attribute(s) updated</div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
