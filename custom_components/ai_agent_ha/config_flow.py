@@ -388,6 +388,9 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
             if current_models[provider] not in available_models:
                 # It's a custom model
                 current_custom_model = current_models[provider]
+            elif current_model == "Custom..." and current_models.get(provider):
+                # Model dropdown is set to Custom..., check if there's a custom model value
+                current_custom_model = current_models[provider]
 
         if user_input is not None:
             try:
@@ -465,7 +468,7 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
                     "model", default=current_model if current_model else "Custom..."
                 )
             ] = SelectSelector(SelectSelectorConfig(options=model_options))
-            schema_dict[vol.Optional("custom_model")] = TextSelector(
+            schema_dict[vol.Optional("custom_model", default=current_custom_model)] = TextSelector(
                 TextSelectorConfig(type="text")
             )
             # Add custom system prompt field with current value
@@ -501,7 +504,7 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
             schema_dict[vol.Optional("model", default=current_model)] = SelectSelector(
                 SelectSelectorConfig(options=model_options)
             )
-            schema_dict[vol.Optional("custom_model")] = TextSelector(
+            schema_dict[vol.Optional("custom_model", default=current_custom_model)] = TextSelector(
                 TextSelectorConfig(type="text")
             )
         # Add custom system prompt field with current value
