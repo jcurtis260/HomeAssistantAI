@@ -2820,6 +2820,44 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
                             "Cleaned response last 100 chars: %s", response_clean[-100:]
                         )
 
+                        # First, try to find multiple JSON objects (tool calls)
+                        import re
+                        json_objects = []
+                        # Find all JSON objects in the response
+                        json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
+                        matches = re.finditer(json_pattern, response_clean)
+                        for match in matches:
+                            try:
+                                obj = json.loads(match.group())
+                                if obj.get("request_type") or obj.get("request"):
+                                    json_objects.append(obj)
+                            except json.JSONDecodeError:
+                                continue
+                        
+                        # If we found multiple tool calls, execute them all
+                        if len(json_objects) > 1:
+                            _LOGGER.debug(f"Found {len(json_objects)} tool calls, executing sequentially")
+                            all_data = []
+                            for idx, tool_call in enumerate(json_objects):
+                                _LOGGER.debug(f"Executing tool call {idx + 1}/{len(json_objects)}: {tool_call.get('request_type')}")
+                                request_type = tool_call.get("request_type")
+                                parameters = tool_call.get("parameters", {})
+                                
+                                # Execute the tool call
+                                data = await self._execute_tool_call(request_type, parameters)
+                                all_data.append({
+                                    "request_type": request_type,
+                                    "parameters": parameters,
+                                    "data": data
+                                })
+                            
+                            # Send all results back to AI and continue loop
+                            self.conversation_history.append({
+                                "role": "user",
+                                "content": f"Here is the data from the tool calls:\n{json.dumps(all_data, indent=2)}"
+                            })
+                            continue  # Continue the while loop to get AI's next response
+
                         # Simple strategy: try to parse the cleaned response directly
                         response_data = None
                         try:
@@ -2957,65 +2995,8 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
                                 }
                             )
 
-                            # Get requested data
-                            data: Union[Dict[str, Any], List[Dict[str, Any]]]
-                            if request_type == "get_entity_state":
-                                data = await self.get_entity_state(
-                                    parameters.get("entity_id")
-                                )
-                            elif request_type == "get_entities_by_domain":
-                                data = await self.get_entities_by_domain(
-                                    parameters.get("domain")
-                                )
-                            elif request_type == "get_entities_by_area":
-                                data = await self.get_entities_by_area(
-                                    parameters.get("area_id")
-                                )
-                            elif request_type == "get_entities":
-                                data = await self.get_entities(
-                                    area_id=parameters.get("area_id"),
-                                    area_ids=parameters.get("area_ids"),
-                                )
-                            elif request_type == "get_entities_by_device_class":
-                                data = await self.get_entities_by_device_class(
-                                    parameters.get("device_class"),
-                                    parameters.get("domain"),
-                                )
-                            elif request_type == "get_climate_related_entities":
-                                data = await self.get_climate_related_entities()
-                            elif request_type == "get_calendar_events":
-                                data = await self.get_calendar_events(
-                                    parameters.get("entity_id")
-                                )
-                            elif request_type == "get_automations":
-                                data = await self.get_automations()
-                            elif request_type == "get_entity_registry":
-                                data = await self.get_entity_registry()
-                            elif request_type == "get_device_registry":
-                                data = await self.get_device_registry()
-                            elif request_type == "get_weather_data":
-                                data = await self.get_weather_data()
-                            elif request_type == "get_area_registry":
-                                data = await self.get_area_registry()
-                            elif request_type == "get_history":
-                                data = await self.get_history(
-                                    parameters.get("entity_id"),
-                                    parameters.get("hours", 24),
-                                )
-                            elif request_type == "get_person_data":
-                                data = await self.get_person_data()
-                            elif request_type == "get_statistics":
-                                data = await self.get_statistics(
-                                    parameters.get("entity_id")
-                                )
-                            elif request_type == "get_scenes":
-                                data = await self.get_scenes()
-                            elif request_type == "get_dashboards":
-                                data = await self.get_dashboards()
-                            elif request_type == "get_dashboard_config":
-                                data = await self.get_dashboard_config(
-                                    parameters.get("dashboard_url")
-                                )
+                            # Execute tool call
+                            data = await self._execute_tool_call(request_type, parameters)
                             elif request_type == "set_entity_state":
                                 data = await self.set_entity_state(
                                     parameters.get("entity_id"),
