@@ -273,7 +273,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             agent = hass.data[DOMAIN]["agents"][provider]
 
             # Parse dashboard config if it's a string
-            dashboard_config = call.data.get("dashboard_config", {})
+            dashboard_config = call.data.get("dashboard_config")
+            
+            # Validate dashboard_config exists and is not None
+            if dashboard_config is None:
+                _LOGGER.error("dashboard_config is None or missing")
+                return {"error": "Dashboard configuration is required"}
+            
             if isinstance(dashboard_config, str):
                 try:
                     import json
@@ -282,6 +288,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 except json.JSONDecodeError as e:
                     _LOGGER.error(f"Invalid JSON in dashboard_config: {e}")
                     return {"error": f"Invalid JSON in dashboard_config: {e}"}
+            
+            # Ensure dashboard_config is a dictionary
+            if not isinstance(dashboard_config, dict):
+                _LOGGER.error(f"dashboard_config must be a dictionary, got {type(dashboard_config)}")
+                return {"error": f"Dashboard configuration must be a dictionary, got {type(dashboard_config).__name__}"}
 
             result = await agent.create_dashboard(dashboard_config)
             return result

@@ -2114,6 +2114,16 @@ class AiAgentHaAgent:
     ) -> Dict[str, Any]:
         """Create a new dashboard using Home Assistant's Lovelace WebSocket API."""
         try:
+            # Validate dashboard_config is not None
+            if dashboard_config is None:
+                _LOGGER.error("dashboard_config is None")
+                return {"error": "Dashboard configuration is required"}
+            
+            # Validate dashboard_config is a dictionary
+            if not isinstance(dashboard_config, dict):
+                _LOGGER.error(f"dashboard_config must be a dictionary, got {type(dashboard_config)}")
+                return {"error": f"Dashboard configuration must be a dictionary, got {type(dashboard_config).__name__}"}
+            
             _LOGGER.debug(
                 "Creating dashboard with config: %s",
                 json.dumps(dashboard_config, default=str),

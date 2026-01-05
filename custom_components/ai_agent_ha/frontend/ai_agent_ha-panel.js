@@ -1334,8 +1334,14 @@ class AiAgentHaPanel extends LitElement {
           message.text = response.message || 'I found an automation that might help you. Would you like me to create it?';
         } else if (response.request_type === 'dashboard_suggestion') {
           console.debug("Found dashboard suggestion:", response.dashboard);
-          message.dashboard = response.dashboard;
-          message.text = response.message || 'I created a dashboard configuration for you. Would you like me to create it?';
+          // Validate dashboard exists and is an object
+          if (response.dashboard && typeof response.dashboard === 'object') {
+            message.dashboard = response.dashboard;
+            message.text = response.message || 'I created a dashboard configuration for you. Would you like me to create it?';
+          } else {
+            console.error("Dashboard suggestion missing or invalid dashboard object:", response);
+            message.text = 'I tried to create a dashboard, but the configuration was invalid. Please try again.';
+          }
         } else if (response.request_type === 'final_response') {
           // If it's a final response, use the response field
           message.text = response.response || response.message || event.data.answer;
@@ -1422,8 +1428,14 @@ class AiAgentHaPanel extends LitElement {
 
   async _approveDashboard(dashboard) {
     if (this._isLoading) return;
+    if (!dashboard) {
+      console.error("Dashboard is null or undefined");
+      this._error = 'Dashboard configuration is missing';
+      return;
+    }
     this._isLoading = true;
     try {
+      console.debug("Creating dashboard with config:", dashboard);
       const result = await this.hass.callService('ai_agent_ha', 'create_dashboard', {
         dashboard_config: dashboard
       });
