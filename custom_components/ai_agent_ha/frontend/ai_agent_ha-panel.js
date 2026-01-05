@@ -1782,11 +1782,6 @@ class AiAgentHaPanel extends LitElement {
     details += `The AI agent is processing your request. This may take a few moments depending on the complexity of your query.`;
     return details;
   }
-}
-
-customElements.define("ai_agent_ha-panel", AiAgentHaPanel);
-
-console.log("HomeMind Ai Panel registered");
 
   _renderDashboardPreview(dashboard) {
     if (!dashboard || !dashboard.views) {
