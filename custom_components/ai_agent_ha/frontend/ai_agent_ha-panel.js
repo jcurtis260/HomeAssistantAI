@@ -1996,3 +1996,8 @@ class AiAgentHaPanel extends LitElement {
       </div>
     `;
   }
+}
+
+customElements.define("ai_agent_ha-panel", AiAgentHaPanel);
+
+console.log("HomeMind Ai Panel registered");
