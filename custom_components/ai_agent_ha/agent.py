@@ -2821,40 +2821,77 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
                         )
 
                         # First, try to find multiple JSON objects (tool calls)
+                        # The AI might return multiple tool calls separated by newlines or spaces
                         import re
                         json_objects = []
-                        # Find all JSON objects in the response
-                        json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
-                        matches = re.finditer(json_pattern, response_clean)
-                        for match in matches:
-                            try:
-                                obj = json.loads(match.group())
-                                if obj.get("request_type") or obj.get("request"):
-                                    json_objects.append(obj)
-                            except json.JSONDecodeError:
+                        
+                        # Split response by lines and try to parse each line as JSON
+                        lines = response_clean.split('\n')
+                        for line in lines:
+                            line = line.strip()
+                            if not line:
                                 continue
+                            # Try to find JSON object in this line
+                            json_start = line.find('{')
+                            if json_start != -1:
+                                json_end = line.rfind('}')
+                                if json_end > json_start:
+                                    json_str = line[json_start:json_end + 1]
+                                    try:
+                                        obj = json.loads(json_str)
+                                        if obj.get("request_type") or obj.get("request"):
+                                            json_objects.append(obj)
+                                    except json.JSONDecodeError:
+                                        # Try with the fixed regex approach
+                                        try:
+                                            # Fix common JSON errors
+                                            fixed = re.sub(
+                                                r'\[\s*"([^"]+)":\s*"([^"]+)"\s*\]',
+                                                r'{"\1": "\2"}',
+                                                json_str
+                                            )
+                                            fixed = re.sub(
+                                                r'\[\s*"([^"]+)":\s*([^,\]]+)\s*\]',
+                                                r'{"\1": \2}',
+                                                fixed
+                                            )
+                                            obj = json.loads(fixed)
+                                            if obj.get("request_type") or obj.get("request"):
+                                                json_objects.append(obj)
+                                        except json.JSONDecodeError:
+                                            continue
                         
                         # If we found multiple tool calls, execute them all
                         if len(json_objects) > 1:
                             _LOGGER.debug(f"Found {len(json_objects)} tool calls, executing sequentially")
                             all_data = []
                             for idx, tool_call in enumerate(json_objects):
-                                _LOGGER.debug(f"Executing tool call {idx + 1}/{len(json_objects)}: {tool_call.get('request_type')}")
                                 request_type = tool_call.get("request_type")
+                                if not request_type:
+                                    continue
+                                _LOGGER.debug(f"Executing tool call {idx + 1}/{len(json_objects)}: {request_type}")
                                 parameters = tool_call.get("parameters", {})
                                 
                                 # Execute the tool call
-                                data = await self._execute_tool_call(request_type, parameters)
-                                all_data.append({
-                                    "request_type": request_type,
-                                    "parameters": parameters,
-                                    "data": data
-                                })
+                                try:
+                                    data = await self._execute_tool_call(request_type, parameters)
+                                    all_data.append({
+                                        "request_type": request_type,
+                                        "parameters": parameters,
+                                        "data": data
+                                    })
+                                except Exception as e:
+                                    _LOGGER.error(f"Error executing tool call {request_type}: {e}")
+                                    all_data.append({
+                                        "request_type": request_type,
+                                        "parameters": parameters,
+                                        "error": str(e)
+                                    })
                             
                             # Send all results back to AI and continue loop
                             self.conversation_history.append({
                                 "role": "user",
-                                "content": f"Here is the data from the tool calls:\n{json.dumps(all_data, indent=2)}"
+                                "content": f"Here is the data from the tool calls:\n{json.dumps(all_data, indent=2, default=str)}"
                             })
                             continue  # Continue the while loop to get AI's next response
 
