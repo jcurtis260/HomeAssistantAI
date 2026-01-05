@@ -2276,13 +2276,9 @@ class AiAgentHaPanel extends LitElement {
   }
 
   _buildDefaultStatusDetails() {
-    let details = `📋 Request Details:\n`;
-    details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    details += `📤 Sent to AI:\n`;
+    let details = `📤 Sent to AI:\n`;
     details += `"${this._currentPrompt || 'No prompt yet'}"\n\n`;
-    details += `⏳ Status:\n`;
-    details += `Waiting for response...\n\n`;
-    details += `The AI agent is processing your request. This may take a few moments depending on the complexity of your query.`;
+    details += `⏳ Status: Waiting for response...`;
     return details;
   }
 
