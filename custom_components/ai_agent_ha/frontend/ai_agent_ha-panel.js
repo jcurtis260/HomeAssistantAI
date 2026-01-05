@@ -1230,42 +1230,58 @@ class AiAgentHaPanel extends LitElement {
   }
 
   async connectedCallback() {
-    super.connectedCallback();
-    console.debug("HomeMind Ai Panel connected");
-    
-    // Load chat history from localStorage
-    this._loadChatHistory();
-    
-    if (this.hass && !this._eventSubscriptionSetup) {
-      this._eventSubscriptionSetup = true;
-      this.hass.connection.subscribeEvents(
-        (event) => this._handleLlamaResponse(event),
-        'ai_agent_ha_response'
-      );
-      console.debug("Event subscription set up in connectedCallback()");
-      // Load prompt history from Home Assistant storage
-      await this._loadPromptHistory();
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!this.shadowRoot.querySelector('.provider-selector')?.contains(e.target)) {
-        this._showProviderDropdown = false;
+    try {
+      super.connectedCallback();
+      console.log("✅ HomeMind Ai Panel connectedCallback called");
+      
+      // Load chat history from localStorage
+      this._loadChatHistory();
+      
+      if (this.hass && !this._eventSubscriptionSetup) {
+        this._eventSubscriptionSetup = true;
+        this.hass.connection.subscribeEvents(
+          (event) => this._handleLlamaResponse(event),
+          'ai_agent_ha_response'
+        );
+        console.log("✅ Event subscription set up in connectedCallback()");
+        // Load prompt history from Home Assistant storage
+        await this._loadPromptHistory();
+      } else {
+        console.log("⚠️ DEBUG: hass not available or subscription already set up");
       }
-    });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!this.shadowRoot.querySelector('.provider-selector')?.contains(e.target)) {
+          this._showProviderDropdown = false;
+        }
+      });
+    } catch (error) {
+      console.error("❌ ERROR in connectedCallback:", error);
+      console.error("   Error stack:", error.stack);
+    }
   }
 
   async updated(changedProps) {
-    console.debug("Updated called with:", changedProps);
+    try {
+      console.log("✅ DEBUG: updated() called with:", Object.keys(changedProps));
 
-    // Set up event subscription when hass becomes available
-    if (changedProps.has('hass') && this.hass && !this._eventSubscriptionSetup) {
-      this._eventSubscriptionSetup = true;
-      this.hass.connection.subscribeEvents(
-        (event) => this._handleLlamaResponse(event),
-        'ai_agent_ha_response'
-      );
-      console.debug("Event subscription set up in updated()");
+      // Set up event subscription when hass becomes available
+      if (changedProps.has('hass')) {
+        console.log("✅ DEBUG: hass property updated");
+        console.log("   hass available:", !!this.hass);
+        if (this.hass && !this._eventSubscriptionSetup) {
+          this._eventSubscriptionSetup = true;
+          this.hass.connection.subscribeEvents(
+            (event) => this._handleLlamaResponse(event),
+            'ai_agent_ha_response'
+          );
+          console.log("✅ Event subscription set up in updated()");
+        }
+      }
+    } catch (error) {
+      console.error("❌ ERROR in updated:", error);
+      console.error("   Error stack:", error.stack);
     }
 
     // Load providers when hass becomes available
@@ -1808,6 +1824,20 @@ class AiAgentHaPanel extends LitElement {
         </div>
       </div>
     `;
+    } catch (error) {
+      console.error("❌ ERROR: Failed to render panel:", error);
+      console.error("   Error stack:", error.stack);
+      return html`
+        <div style="padding: 20px; color: #ef4444; text-align: center; margin-top: 50px;">
+          <ha-icon icon="mdi:alert-circle" style="--mdc-icon-size: 48px; color: #ef4444;"></ha-icon>
+          <div style="margin-top: 16px; font-size: 16px; font-weight: 600;">Error Loading Panel</div>
+          <div style="margin-top: 8px; font-size: 12px; color: #94a3b8;">${error.message || 'Unknown error'}</div>
+          <div style="margin-top: 16px; font-size: 11px; color: #64748b; font-family: monospace;">
+            Check browser console (F12) for details
+          </div>
+        </div>
+      `;
+    }
   }
 
   _scrollToBottom() {
