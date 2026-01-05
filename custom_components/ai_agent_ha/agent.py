@@ -2490,8 +2490,54 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
                     )
 
                 if file_exists:
-                    # Use async_add_executor_job to perform file I/O asynchronously
+                    # Read existing YAML, merge changes, and write back
                     def update_dashboard_file():
+                        # Read existing dashboard config
+                        try:
+                            with open(dashboard_file, "r") as f:
+                                existing_config = yaml.safe_load(f) or {}
+                        except Exception as e:
+                            _LOGGER.warning(
+                                "Could not read existing dashboard file, creating new: %s", e
+                            )
+                            existing_config = {}
+
+                        # Merge new data with existing config
+                        # Preserve existing views and add/update as needed
+                        if "views" in dashboard_data and dashboard_data["views"]:
+                            # If existing config has views, merge them
+                            if "views" in existing_config and existing_config["views"]:
+                                # Merge views - update existing or add new
+                                existing_views = existing_config["views"]
+                                new_views = dashboard_data["views"]
+                                
+                                # For each new view, check if it matches an existing view by title
+                                for new_view in new_views:
+                                    view_found = False
+                                    for i, existing_view in enumerate(existing_views):
+                                        if existing_view.get("title") == new_view.get("title"):
+                                            # Merge cards from new view into existing view
+                                            if "cards" in new_view and new_view["cards"]:
+                                                if "cards" not in existing_view:
+                                                    existing_view["cards"] = []
+                                                # Add new cards to existing view
+                                                existing_view["cards"].extend(new_view["cards"])
+                                            view_found = True
+                                            break
+                                    if not view_found:
+                                        # Add as new view
+                                        existing_views.append(new_view)
+                                
+                                dashboard_data["views"] = existing_views
+                            # If no existing views, use new views as-is
+                        
+                        # Merge other properties (title, icon, etc.) - prefer new values but keep existing if not provided
+                        if "title" not in dashboard_data or not dashboard_data.get("title"):
+                            dashboard_data["title"] = existing_config.get("title", dashboard_data.get("title", "Updated Dashboard"))
+                        if "icon" not in dashboard_data or not dashboard_data.get("icon"):
+                            dashboard_data["icon"] = existing_config.get("icon", dashboard_data.get("icon", "mdi:view-dashboard"))
+                        
+                        # Write merged config back
                         with open(dashboard_file, "w") as f:
                             yaml.dump(
                                 dashboard_data,
@@ -2507,10 +2553,30 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
                     )
                     return {
                         "success": True,
-                        "message": f"Dashboard '{dashboard_url}' updated successfully!",
+                        "message": f"Dashboard '{dashboard_url}' updated successfully! I've merged the new entities with your existing dashboard configuration.",
                     }
                 else:
-                    return {"error": f"Dashboard file for '{dashboard_url}' not found"}
+                    # Try to get dashboard config to check if it's a storage-mode dashboard
+                    dashboard_info = await self.get_dashboard_config(dashboard_url)
+                    if "error" not in dashboard_info:
+                        # It's a storage-mode dashboard, try using Lovelace API
+                        try:
+                            from homeassistant.components.lovelace import DOMAIN as LOVELACE_DOMAIN
+                            lovelace_data = self.hass.data.get(LOVELACE_DOMAIN)
+                            if lovelace_data:
+                                dashboards = lovelace_data.dashboards
+                                if dashboard_url in dashboards:
+                                    dashboard = dashboards[dashboard_url]
+                                    # Try to update via Lovelace API
+                                    await dashboard.async_update(dashboard_data)
+                                    return {
+                                        "success": True,
+                                        "message": f"Dashboard '{dashboard_url}' updated successfully via Lovelace API!",
+                                    }
+                        except Exception as e:
+                            _LOGGER.warning("Could not update via Lovelace API: %s", e)
+                    
+                    return {"error": f"Dashboard file for '{dashboard_url}' not found. Please ensure the dashboard exists and is accessible."}
 
             except Exception as e:
                 _LOGGER.error("Failed to update dashboard file: %s", str(e))
