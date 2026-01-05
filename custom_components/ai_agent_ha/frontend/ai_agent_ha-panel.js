@@ -1991,20 +1991,23 @@ class AiAgentHaPanel extends LitElement {
 
   _updateStatusDetails() {
     // Build detailed status from log
-    let details = `📋 Request Details:\n`;
-    details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    details += `📤 Sent to AI:\n`;
-    details += `"${this._currentPrompt}"\n\n`;
+    let details = `📤 Sent to AI:\n"${this._currentPrompt || 'No prompt yet'}"\n\n`;
     
     if (this._statusLog.length > 0) {
       details += `📊 Processing Steps:\n`;
-      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
       this._statusLog.forEach((log, index) => {
-        details += `\n[${log.timestamp}] ${log.message}`;
-        if (log.details) {
+        const time = log.timestamp && !isNaN(new Date(log.timestamp).getTime()) 
+          ? new Date(log.timestamp).toLocaleTimeString() 
+          : 'Just now';
+        details += `\n[${time}] ${log.message}`;
+        if (log.details && log.details.length < 150) {
           details += `\n   ${log.details}`;
+        } else if (log.details) {
+          details += `\n   ${log.details.substring(0, 150)}...`;
         }
       });
+    } else {
+      details += `⏳ Waiting for response...`;
     }
     
     this._statusDetails = details;
