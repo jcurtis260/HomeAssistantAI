@@ -35,7 +35,8 @@ class AiAgentHaPanel extends LitElement {
       _showProviderDropdown: { type: Boolean, reflect: false, attribute: false },
       _statusDetails: { type: String, reflect: false, attribute: false },
       _showStatusDetails: { type: Boolean, reflect: false, attribute: false },
-      _requestStartTime: { type: Number, reflect: false, attribute: false }
+      _requestStartTime: { type: Number, reflect: false, attribute: false },
+      _elapsedTime: { type: Number, reflect: false, attribute: false }
     };
   }
 
@@ -604,6 +605,7 @@ class AiAgentHaPanel extends LitElement {
     this._statusDetails = '';
     this._showStatusDetails = false;
     this._requestStartTime = null;
+    this._elapsedTime = 0;
     this._predefinedPrompts = [
       "Build a new automation to turn off all lights at 10:00 PM every day",
       "What's the current temperature inside and outside?",
@@ -1018,12 +1020,15 @@ class AiAgentHaPanel extends LitElement {
                   <div style="display: flex; align-items: center; gap: 8px;">
                     ${this._requestStartTime ? html`
                       <span class="status-time">
-                        ${Math.floor((Date.now() - this._requestStartTime) / 1000)}s
+                        ${this._elapsedTime}s
                       </span>
                     ` : ''}
                     <div 
                       class="status-toggle ${this._showStatusDetails ? 'expanded' : ''}"
-                      @click=${() => { this._showStatusDetails = !this._showStatusDetails; this.requestUpdate(); }}
+                      @click=${() => { 
+                        this._showStatusDetails = !this._showStatusDetails; 
+                        this.requestUpdate(); 
+                      }}
                     >
                       <ha-icon icon="mdi:chevron-down"></ha-icon>
                       <span>${this._showStatusDetails ? 'Hide' : 'Show'} Details</span>
@@ -1032,7 +1037,7 @@ class AiAgentHaPanel extends LitElement {
                 </div>
                 ${this._showStatusDetails ? html`
                   <div class="status-details">
-                    ${this._statusDetails || 'Waiting for response...'}
+                    ${this._statusDetails || 'Waiting for response...\n\nThe AI agent is processing your request. This may take a few moments depending on the complexity of your query.'}
                   </div>
                 ` : ''}
               </div>
@@ -1163,6 +1168,8 @@ class AiAgentHaPanel extends LitElement {
     this._statusUpdateInterval = setInterval(() => {
       if (this._isLoading && this._requestStartTime) {
         const elapsed = Math.floor((Date.now() - this._requestStartTime) / 1000);
+        this._elapsedTime = elapsed; // Store elapsed time for reactive updates
+        
         if (elapsed < 10) {
           this._statusDetails = `Sending request to AI service... (${elapsed}s)`;
         } else if (elapsed < 30) {
@@ -1173,6 +1180,12 @@ class AiAgentHaPanel extends LitElement {
           this._statusDetails = `Still processing... (${elapsed}s)\nComplex operations may take longer. The AI is working on your request.`;
         }
         this.requestUpdate();
+      } else {
+        // Clear interval if not loading
+        if (this._statusUpdateInterval) {
+          clearInterval(this._statusUpdateInterval);
+          this._statusUpdateInterval = null;
+        }
       }
     }, 1000);
 
@@ -1214,6 +1227,7 @@ class AiAgentHaPanel extends LitElement {
   _clearLoadingState() {
     this._isLoading = false;
     this._requestStartTime = null;
+    this._elapsedTime = 0;
     this._statusDetails = '';
     if (this._serviceCallTimeout) {
       clearTimeout(this._serviceCallTimeout);
@@ -1396,6 +1410,9 @@ class AiAgentHaPanel extends LitElement {
     // Only update if internal state changes, not on every hass update
     return changedProps.has('_messages') ||
            changedProps.has('_isLoading') ||
+           changedProps.has('_elapsedTime') ||
+           changedProps.has('_statusDetails') ||
+           changedProps.has('_showStatusDetails') ||
            changedProps.has('_error') ||
            changedProps.has('_promptHistory') ||
            changedProps.has('_showPredefinedPrompts') ||
