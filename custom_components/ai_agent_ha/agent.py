@@ -2644,6 +2644,105 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
             _LOGGER.exception("Error updating dashboard: %s", str(e))
             return {"error": f"Error updating dashboard: {str(e)}"}
 
+    async def _execute_tool_call(self, request_type: str, parameters: Dict[str, Any]) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """Execute a single tool call and return the data."""
+        data: Union[Dict[str, Any], List[Dict[str, Any]]]
+        if request_type == "get_entity_state":
+            data = await self.get_entity_state(
+                parameters.get("entity_id")
+            )
+        elif request_type == "get_entities_by_domain":
+            data = await self.get_entities_by_domain(
+                parameters.get("domain")
+            )
+        elif request_type == "get_entities_by_area":
+            data = await self.get_entities_by_area(
+                parameters.get("area_id")
+            )
+        elif request_type == "get_entities":
+            data = await self.get_entities(
+                area_id=parameters.get("area_id"),
+                area_ids=parameters.get("area_ids"),
+            )
+        elif request_type == "get_entities_by_device_class":
+            data = await self.get_entities_by_device_class(
+                parameters.get("device_class"),
+                parameters.get("domain"),
+            )
+        elif request_type == "get_climate_related_entities":
+            data = await self.get_climate_related_entities()
+        elif request_type == "get_calendar_events":
+            data = await self.get_calendar_events(
+                parameters.get("entity_id")
+            )
+        elif request_type == "get_automations":
+            data = await self.get_automations()
+        elif request_type == "get_entity_registry":
+            data = await self.get_entity_registry()
+        elif request_type == "get_device_registry":
+            data = await self.get_device_registry()
+        elif request_type == "get_weather_data":
+            data = await self.get_weather_data()
+        elif request_type == "get_area_registry":
+            data = await self.get_area_registry()
+        elif request_type == "get_history":
+            data = await self.get_history(
+                parameters.get("entity_id"),
+                parameters.get("hours", 24),
+            )
+        elif request_type == "get_person_data":
+            data = await self.get_person_data()
+        elif request_type == "get_statistics":
+            data = await self.get_statistics(
+                parameters.get("entity_id")
+            )
+        elif request_type == "get_scenes":
+            data = await self.get_scenes()
+        elif request_type == "get_dashboards":
+            data = await self.get_dashboards()
+        elif request_type == "get_dashboard_config":
+            data = await self.get_dashboard_config(
+                parameters.get("dashboard_url")
+            )
+        elif request_type == "set_entity_state":
+            data = await self.set_entity_state(
+                parameters.get("entity_id"),
+                parameters.get("state"),
+                parameters.get("attributes"),
+            )
+        elif request_type == "create_automation":
+            data = await self.create_automation(
+                parameters.get("automation")
+            )
+        elif request_type == "create_dashboard":
+            data = await self.create_dashboard(
+                parameters.get("dashboard_config")
+            )
+        elif request_type == "update_dashboard":
+            dashboard_url = parameters.get("dashboard_url")
+            dashboard_config = parameters.get("dashboard_config")
+            
+            # Validate parameters
+            if not dashboard_url:
+                data = {"error": "dashboard_url parameter is required for update_dashboard"}
+            elif dashboard_config is None:
+                data = {"error": "dashboard_config parameter is required for update_dashboard"}
+            elif not isinstance(dashboard_config, dict):
+                data = {"error": f"dashboard_config must be a dictionary, got {type(dashboard_config).__name__}"}
+            else:
+                data = await self.update_dashboard(
+                    dashboard_url,
+                    dashboard_config,
+                )
+        else:
+            data = {
+                "error": f"Unknown request type: {request_type}"
+            }
+            _LOGGER.warning(
+                "Unknown request type: %s", request_type
+            )
+        return data
+
     async def process_query(
         self, user_query: str, provider: Optional[str] = None
     ) -> Dict[str, Any]:
@@ -3034,43 +3133,6 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
 
                             # Execute tool call
                             data = await self._execute_tool_call(request_type, parameters)
-                            elif request_type == "set_entity_state":
-                                data = await self.set_entity_state(
-                                    parameters.get("entity_id"),
-                                    parameters.get("state"),
-                                    parameters.get("attributes"),
-                                )
-                            elif request_type == "create_automation":
-                                data = await self.create_automation(
-                                    parameters.get("automation")
-                                )
-                            elif request_type == "create_dashboard":
-                                data = await self.create_dashboard(
-                                    parameters.get("dashboard_config")
-                                )
-                            elif request_type == "update_dashboard":
-                                dashboard_url = parameters.get("dashboard_url")
-                                dashboard_config = parameters.get("dashboard_config")
-                                
-                                # Validate parameters
-                                if not dashboard_url:
-                                    data = {"error": "dashboard_url parameter is required for update_dashboard"}
-                                elif dashboard_config is None:
-                                    data = {"error": "dashboard_config parameter is required for update_dashboard"}
-                                elif not isinstance(dashboard_config, dict):
-                                    data = {"error": f"dashboard_config must be a dictionary, got {type(dashboard_config).__name__}"}
-                                else:
-                                    data = await self.update_dashboard(
-                                        dashboard_url,
-                                        dashboard_config,
-                                    )
-                            else:
-                                data = {
-                                    "error": f"Unknown request type: {request_type}"
-                                }
-                                _LOGGER.warning(
-                                    "Unknown request type: %s", request_type
-                                )
 
                             # Check if any data request resulted in an error
                             if isinstance(data, dict) and "error" in data:
