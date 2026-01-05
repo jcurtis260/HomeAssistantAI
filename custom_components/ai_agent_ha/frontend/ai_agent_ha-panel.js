@@ -2745,11 +2745,24 @@ class AiAgentHaPanel extends LitElement {
 
   _renderOptionsDialog() {
     return html`
-      <div class="dialog-overlay" @click=${() => { this._showOptionsDialog = false; this.requestUpdate(); }}>
+      <div class="dialog-overlay" @click=${(e) => { 
+        e.preventDefault();
+        e.stopPropagation();
+        this._showOptionsDialog = false;
+        this.requestUpdate();
+      }}>
         <div class="dialog-content" @click=${(e) => e.stopPropagation()}>
           <div class="dialog-header">
             <h2>Options</h2>
-            <button class="dialog-close" @click=${() => { this._showOptionsDialog = false; this.requestUpdate(); }}>
+            <button 
+              class="dialog-close" 
+              @click=${(e) => { 
+                e.preventDefault();
+                e.stopPropagation();
+                this._showOptionsDialog = false;
+                this.requestUpdate();
+              }}
+            >
               <ha-icon icon="mdi:close"></ha-icon>
             </button>
           </div>
@@ -2767,18 +2780,22 @@ class AiAgentHaPanel extends LitElement {
                 class="prompt-textarea"
                 placeholder="Example: You are a home assistant expert, when making dashboards always use modern cards. - *User MSG*"
                 .value=${this._customSystemPrompt || ''}
-                @input=${(e) => { this._customSystemPrompt = e.target.value; }}
+                @input=${(e) => { 
+                  this._customSystemPrompt = e.target.value;
+                }}
                 rows="4"
               ></textarea>
               <div class="option-hint">
                 <ha-icon icon="mdi:information"></ha-icon>
-                <span>Leave empty to use default behavior. The placeholder will be replaced with your actual message.</span>
+                <span>Leave empty to use default behavior. The placeholder will be replaced with your actual message. If no placeholder is used, your message will be appended after the custom prompt.</span>
               </div>
             </div>
           </div>
           <div class="dialog-footer">
             <ha-button
-              @click=${async () => {
+              @click=${async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 this._customSystemPrompt = '';
                 await this._saveCustomSystemPrompt();
                 this._showOptionsDialog = false;
@@ -2789,7 +2806,9 @@ class AiAgentHaPanel extends LitElement {
               Reset
             </ha-button>
             <ha-button
-              @click=${async () => {
+              @click=${async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 await this._saveCustomSystemPrompt();
                 this._showOptionsDialog = false;
                 this.requestUpdate();
