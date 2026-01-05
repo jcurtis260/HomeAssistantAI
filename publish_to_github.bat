@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo Publishing AI Agent HA to GitHub
+echo Publishing HomeMind Ai to GitHub
 echo Repository: https://github.com/jcurtis260/HomeAssistantAI
 echo ========================================
 echo.
@@ -31,7 +31,7 @@ if errorlevel 1 (
 
 echo.
 echo [3/5] Committing changes...
-git commit -m "Update: AI Agent HA v1.08 with improvements
+git commit -m "Update: HomeMind Ai v1.09 with improvements
 
 - Added custom exception classes for better error handling
 - Added input validation utilities

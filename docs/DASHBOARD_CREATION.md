@@ -4,7 +4,7 @@ This document explains how to use the AI Agent to create and manage Home Assista
 
 ## Overview
 
-The AI Agent HA integration now supports creating and managing Home Assistant dashboards through natural language conversations. The AI can:
+The HomeMind Ai integration now supports creating and managing Home Assistant dashboards through natural language conversations. The AI can:
 
 - Create new dashboards based on your requirements
 - Update existing dashboards
@@ -14,7 +14,7 @@ The AI Agent HA integration now supports creating and managing Home Assistant da
 
 ## How It Works
 
-The AI Agent uses the following workflow for dashboard creation:
+The AI uses the following workflow for dashboard creation:
 
 1. **Requirement Gathering**: When you ask to create a dashboard, the AI will gather information about your needs
 2. **Entity Analysis**: The AI queries your Home Assistant instance to understand available entities

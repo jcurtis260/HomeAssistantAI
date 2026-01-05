@@ -1,11 +1,11 @@
-# AI Agent HA - Improvements Summary
+# HomeMind Ai - Improvements Summary
 
 ## ✅ Improvements Implemented
 
 ### 1. Custom Exception Classes (`exceptions.py`)
 Created a comprehensive set of custom exception classes for better error handling:
 
-- **`AIAgentHAError`** - Base exception for all AI Agent HA errors
+- **`AIAgentHAError`** - Base exception for all HomeMind Ai errors
 - **`AIProviderError`** - Provider-specific errors with status codes
 - **`APIKeyError`** - Invalid or missing API keys
 - **`ModelNotFoundError`** - Model not found errors

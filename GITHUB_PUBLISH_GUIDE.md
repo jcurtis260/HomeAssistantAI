@@ -1,6 +1,6 @@
-# Publishing AI Agent HA to GitHub
+# Publishing HomeMind Ai to GitHub
 
-This guide will help you publish the AI Agent HA integration to GitHub so you can use it in Home Assistant.
+This guide will help you publish the HomeMind Ai integration to GitHub so you can use it in Home Assistant.
 
 ## 📋 Prerequisites
 
@@ -43,7 +43,7 @@ git add .
 git status
 
 # Commit the files
-git commit -m "Initial commit: AI Agent HA with improvements
+git commit -m "Initial commit: HomeMind Ai with improvements
 
 - Added custom exception classes for better error handling
 - Added input validation utilities
@@ -149,7 +149,7 @@ git push
 ```
 
 Then in Home Assistant:
-- **HACS**: Go to HACS → Integrations → AI Agent HA → Update
+- **HACS**: Go to HACS → Integrations → HomeMind Ai → Update
 - **Manual**: Download the latest version and replace the files
 
 ## 🏷️ Creating Releases

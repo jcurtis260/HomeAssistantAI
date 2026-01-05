@@ -1,4 +1,4 @@
-"""The AI Agent HA integration."""
+"""The HomeMind Ai integration."""
 
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ SERVICE_SCHEMA = vol.Schema(
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the AI Agent HA component."""
+    """Set up the HomeMind Ai component."""
     return True
 
 
@@ -58,7 +58,7 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up AI Agent HA from a config entry."""
+    """Set up HomeMind Ai from a config entry."""
     try:
         # Handle version compatibility
         if not hasattr(entry, "version") or entry.version != 1:
@@ -120,14 +120,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         hass.data[DOMAIN]["agents"][provider] = AiAgentHaAgent(hass, config_data)
 
-        _LOGGER.info("Successfully set up AI Agent HA for provider: %s", provider)
+        _LOGGER.info("Successfully set up HomeMind Ai for provider: %s", provider)
 
     except KeyError as err:
         _LOGGER.error("Missing required configuration key: %s", err)
         raise ConfigEntryNotReady(f"Missing required configuration key: {err}")
     except Exception as err:
-        _LOGGER.exception("Unexpected error setting up AI Agent HA")
-        raise ConfigEntryNotReady(f"Error setting up AI Agent HA: {err}")
+        _LOGGER.exception("Unexpected error setting up HomeMind Ai")
+        raise ConfigEntryNotReady(f"Error setting up HomeMind Ai: {err}")
 
     # Modify the query service handler to use the correct provider
     async def async_handle_query(call):
@@ -376,14 +376,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     panel_name = "ai_agent_ha"
     try:
         if await _panel_exists(hass, panel_name):
-            _LOGGER.debug("AI Agent HA panel already exists, skipping registration")
+            _LOGGER.debug("HomeMind Ai panel already exists, skipping registration")
             return True
 
-        _LOGGER.debug("Registering AI Agent HA panel")
+        _LOGGER.debug("Registering HomeMind Ai panel")
         async_register_built_in_panel(
             hass,
             component_name="custom",
-            sidebar_title="AI Agent HA",
+            sidebar_title="HomeMind Ai",
             sidebar_icon="mdi:robot",
             frontend_url_path=panel_name,
             require_admin=False,
@@ -395,7 +395,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 }
             },
         )
-        _LOGGER.debug("AI Agent HA panel registered successfully")
+        _LOGGER.debug("HomeMind Ai panel registered successfully")
     except Exception as e:
         _LOGGER.warning("Panel registration error: %s", str(e))
 
@@ -409,7 +409,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             from homeassistant.components.frontend import async_remove_panel
 
             async_remove_panel(hass, "ai_agent_ha")
-            _LOGGER.debug("AI Agent HA panel removed successfully")
+            _LOGGER.debug("HomeMind Ai panel removed successfully")
         except Exception as e:
             _LOGGER.debug("Error removing panel: %s", str(e))
 

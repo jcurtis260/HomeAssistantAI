@@ -1,6 +1,6 @@
-# Contributing to AI Agent HA
+# Contributing to HomeMind Ai
 
-Thank you for your interest in contributing to AI Agent HA! This document provides guidelines and information for contributors to help make the process smooth and collaborative.
+Thank you for your interest in contributing to HomeMind Ai! This document provides guidelines and information for contributors to help make the process smooth and collaborative.
 
 ## 🚀 Getting Started
 
@@ -28,7 +28,7 @@ Thank you for your interest in contributing to AI Agent HA! This document provid
 
 4. **Configure the integration**:
    - Go to Settings → Devices & Services → Add Integration
-   - Search for "AI Agent HA"
+   - Search for "HomeMind Ai"
    - Configure with your AI provider credentials
 
 ## 🏗️ Project Structure
@@ -60,7 +60,7 @@ Before creating an issue, please:
 
 When reporting issues, include:
 - Home Assistant version
-- AI Agent HA version
+- HomeMind Ai version
 - AI provider and model used
 - Detailed steps to reproduce
 - Error logs (if any)

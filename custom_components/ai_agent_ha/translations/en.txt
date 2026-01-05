@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "title": "AI Agent HA - Select Provider",
+                "title": "HomeMind Ai - Select Provider",
                 "description": "Choose your AI provider",
                 "data": {
                     "ai_provider": "AI Provider"
@@ -12,7 +12,7 @@
                 }
             },
             "configure": {
-                "title": "AI Agent HA - Configure {provider}",
+                "title": "HomeMind Ai - Configure {provider}",
                 "description": "Configure your {provider} API credentials and model",
                 "data": {
                     "llama_token": "Llama API Token",
@@ -41,13 +41,13 @@
             "unknown": "Unexpected error occurred"
         },
         "abort": {
-            "already_configured": "AI Agent HA is already configured"
+            "already_configured": "HomeMind Ai is already configured"
         }
     },
     "options": {
         "step": {
             "init": {
-                "title": "AI Agent HA - Select Provider",
+                "title": "HomeMind Ai - Select Provider",
                 "description": "Choose your AI provider (Current: {current_provider})",
                 "data": {
                     "ai_provider": "AI Provider"
@@ -57,7 +57,7 @@
                 }
             },
             "configure_options": {
-                "title": "AI Agent HA - Configure {provider}",
+                "title": "HomeMind Ai - Configure {provider}",
                 "description": "Update your {provider} API credentials and model",
                 "data": {
                     "llama_token": "Llama API Token",

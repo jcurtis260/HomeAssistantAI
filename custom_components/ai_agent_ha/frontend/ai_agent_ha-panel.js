@@ -4,7 +4,7 @@ import {
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
-// AI Agent HA Panel - Production build
+// HomeMind Ai Panel - Production build
 
 const PROVIDERS = {
   openai: "OpenAI",
@@ -630,7 +630,7 @@ class AiAgentHaPanel extends LitElement {
     this.providersLoaded = false;
     this._eventSubscriptionSetup = false;
     this._serviceCallTimeout = null;
-    console.debug("AI Agent HA Panel constructor called");
+    console.debug("HomeMind Ai Panel constructor called");
   }
 
   _getRandomPrompts() {
@@ -641,7 +641,7 @@ class AiAgentHaPanel extends LitElement {
 
   async connectedCallback() {
     super.connectedCallback();
-    console.debug("AI Agent HA Panel connected");
+    console.debug("HomeMind Ai Panel connected");
     
     // Load chat history from localStorage
     this._loadChatHistory();
@@ -701,13 +701,13 @@ class AiAgentHaPanel extends LitElement {
             } else {
               // Fallback to title mapping
               const titleToProviderMap = {
-                "AI Agent HA (OpenRouter)": "openrouter",
-                "AI Agent HA (Google Gemini)": "gemini",
-                "AI Agent HA (OpenAI)": "openai",
-                "AI Agent HA (Llama)": "llama",
-                "AI Agent HA (Anthropic (Claude))": "anthropic",
-                "AI Agent HA (Alter)": "alter",
-                "AI Agent HA (Local Model)": "local",
+                "HomeMind Ai (OpenRouter)": "openrouter",
+                "HomeMind Ai (Google Gemini)": "gemini",
+                "HomeMind Ai (OpenAI)": "openai",
+                "HomeMind Ai (Llama)": "llama",
+                "HomeMind Ai (Anthropic (Claude))": "anthropic",
+                "HomeMind Ai (Alter)": "alter",
+                "HomeMind Ai (Local Model)": "local",
               };
               provider = titleToProviderMap[entry.title] || "unknown";
             }
@@ -954,7 +954,7 @@ class AiAgentHaPanel extends LitElement {
     return html`
       <div class="header">
         <ha-icon icon="mdi:robot"></ha-icon>
-        AI Agent HA
+        HomeMind Ai
         <button
           class="clear-button"
           @click=${this._clearChat}
@@ -1554,4 +1554,4 @@ class AiAgentHaPanel extends LitElement {
 
 customElements.define("ai_agent_ha-panel", AiAgentHaPanel);
 
-console.log("AI Agent HA Panel registered");
+console.log("HomeMind Ai Panel registered");

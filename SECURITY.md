@@ -2,11 +2,11 @@
 
 ## Reporting a Vulnerability
 
-The AI Agent HA project takes security seriously. We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
+The HomeMind Ai project takes security seriously. We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
 
 ### How to Report a Security Vulnerability
 
-If you believe you've found a security vulnerability in AI Agent HA, please follow these steps:
+If you believe you've found a security vulnerability in HomeMind Ai, please follow these steps:
 
 1. **Do Not** disclose the vulnerability publicly (e.g., in GitHub issues, discussion forums, etc.)
 2. Email the project maintainer directly at benodiz111@gmail.com with:
@@ -45,4 +45,4 @@ The AI Agent HA integration:
 - Validates inputs to prevent injection attacks
 - Limits the actions the AI can perform based on permissions
 
-We appreciate your help in keeping AI Agent HA and its users safe and secure. 
+We appreciate your help in keeping HomeMind Ai and its users safe and secure. 

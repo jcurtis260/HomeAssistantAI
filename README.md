@@ -1,4 +1,4 @@
-# AI Agent HA
+# HomeMind Ai
 
 A powerful Home Assistant custom integration that connects your Home Assistant instance with multiple AI providers (OpenAI, Google Gemini, Anthropic (Claude), OpenRouter, and Llama) to translate user requests into valid Home Assistant operations, including creating automations automatically!
 
@@ -6,7 +6,7 @@ A powerful Home Assistant custom integration that connects your Home Assistant i
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jcurtis260&repository=HomeAssistantAI&category=integration)
 
-Click the button above to install AI Agent HA directly through HACS, or see the [detailed installation instructions](#-installation) below.
+Click the button above to install HomeMind Ai directly through HACS, or see the [detailed installation instructions](#-installation) below.
 
 
 ## 🤝 Contributing
@@ -36,11 +36,11 @@ Every contribution, no matter how small, is greatly appreciated!
 ## 📸 Screenshots
 
 ### Automation Creation
-![AI Agent HA Automation Creation](image/Screenshot2.png)
+![HomeMind Ai Automation Creation](image/Screenshot2.png)
 
 ## 📋 Dashboard Creation
 
-AI Agent HA now supports creating and managing Home Assistant dashboards through natural language conversations! Simply describe what you want, and the AI will create a complete dashboard for you.
+HomeMind Ai now supports creating and managing Home Assistant dashboards through natural language conversations! Simply describe what you want, and the AI will create a complete dashboard for you.
 
 ### How Dashboard Creation Works
 
@@ -139,11 +139,11 @@ Use the [Quick Install button](#-quick-install) at the top of this README for th
 5. Add this repository: `https://github.com/jcurtis260/HomeAssistantAI`
 6. Select "Integration" as the category
 7. Click "Add"
-8. Find "AI Agent HA" in the integration list
+8. Find "HomeMind Ai" in the integration list
 9. Click "Download"
 10. Restart Home Assistant
 11. Go to Settings → Devices & Services → Add Integration
-12. Search for "AI Agent HA"
+12. Search for "HomeMind Ai"
 13. Follow the setup wizard to configure your preferred AI provider
 
 ### Manual Installation
@@ -153,7 +153,7 @@ Use the [Quick Install button](#-quick-install) at the top of this README for th
 3. Copy the `custom_components/ai_agent_ha` folder to your Home Assistant `custom_components` directory
 4. Restart Home Assistant
 5. Go to Settings → Devices & Services → Add Integration
-6. Search for "AI Agent HA"
+6. Search for "HomeMind Ai"
 7. Follow the setup wizard to configure your preferred AI provider
 
 ## ⚙️ Configuration
@@ -188,7 +188,7 @@ ai_agent_ha:
 
 ### Chat Interface
 Access the beautiful chat interface at:
-- **Sidebar**: AI Agent HA panel
+- **Sidebar**: HomeMind Ai panel
 - **URL**: `http://your-ha-instance:8123/ai_agent_ha`
 
 
@@ -331,3 +331,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Made with ❤️ for the Home Assistant community**
+
+---
+
+**Note**: This is a fork of the original AI Agent HA project, rebranded as HomeMind Ai with additional improvements.

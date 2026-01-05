@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-This guide helps you diagnose and resolve common issues with AI Agent HA.
+This guide helps you diagnose and resolve common issues with HomeMind Ai.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ If you encounter issues:
 
 ## Enabling Debug Logs
 
-Debug logs provide detailed information about what AI Agent HA is doing and can help identify issues.
+Debug logs provide detailed information about what HomeMind Ai is doing and can help identify issues.
 
 ### Step 1: Enable Debug Logging
 
@@ -74,7 +74,7 @@ When sharing logs, include:
 - The full log entries for `ai_agent_ha` around the time of the issue
 - The request you made to the AI (if applicable)
 
-**Note**: AI Agent HA automatically sanitizes API keys and tokens in debug logs, so they won't be exposed. However, you may still want to remove personal information like addresses or specific device names if you prefer.
+**Note**: HomeMind Ai automatically sanitizes API keys and tokens in debug logs, so they won't be exposed. However, you may still want to remove personal information like addresses or specific device names if you prefer.
 
 ## Common Issues
 
@@ -139,7 +139,7 @@ If you actually have thermostats or HVAC controls and they're not being found:
 
 3. **Reconfigure the integration**:
    - Go to **Settings** → **Devices & Services**
-   - Find **AI Agent HA**
+   - Find **HomeMind Ai**
    - Click **Configure** and re-enter your API key
 
 4. **Check API quota and billing**:
@@ -168,7 +168,7 @@ If you actually have thermostats or HVAC controls and they're not being found:
    - **OpenRouter**: See [OpenRouter Models](https://openrouter.ai/models)
 
 3. **Try a predefined model**:
-   - In AI Agent HA settings, use the dropdown to select a predefined model
+   - In HomeMind Ai settings, use the dropdown to select a predefined model
    - This ensures you're using a valid model name
 
 4. **Check your API plan**:
@@ -234,7 +234,7 @@ If you actually have thermostats or HVAC controls and they're not being found:
    - Let the AI discover entities based on type/location
 
 5. **Check entity permissions**:
-   - Ensure AI Agent HA has permission to access all entities
+   - Ensure HomeMind Ai has permission to access all entities
    - No specific entity restrictions are configured
 
 ### Dashboard Not Appearing
@@ -274,7 +274,7 @@ If you actually have thermostats or HVAC controls and they're not being found:
 
 **Symptoms**:
 - Integration not appearing in Settings
-- Cannot find AI Agent HA configuration
+- Cannot find HomeMind Ai configuration
 - Missing from Devices & Services
 
 **Solutions**:
@@ -340,7 +340,7 @@ When reporting issues, please include:
 
 ### 1. System Information
 - Home Assistant version
-- AI Agent HA version
+- HomeMind Ai version
 - Python version
 - Installation method (HACS or manual)
 
@@ -377,7 +377,7 @@ Use this template when creating an issue:
 ```markdown
 ## System Information
 - Home Assistant version:
-- AI Agent HA version:
+- HomeMind Ai version:
 - AI Provider:
 - Model:
 

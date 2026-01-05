@@ -1,4 +1,4 @@
-"""Config flow for AI Agent HA integration."""
+"""Config flow for HomeMind Ai integration."""
 
 from __future__ import annotations
 
@@ -135,7 +135,7 @@ DEFAULT_PROVIDER = "openai"
 
 
 class AiAgentHaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg,misc]
-    """Handle a config flow for AI Agent HA."""
+    """Handle a config flow for HomeMind Ai."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
@@ -227,7 +227,7 @@ class AiAgentHaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ig
                         self.config_data["models"][provider] = default_model
 
                 return self.async_create_entry(
-                    title=f"AI Agent HA ({PROVIDERS[provider]})",
+                    title=f"HomeMind Ai ({PROVIDERS[provider]})",
                     data=self.config_data,
                 )
             except InvalidApiKey:
@@ -300,7 +300,7 @@ class InvalidApiKey(HomeAssistantError):
 
 
 class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle options flow for AI Agent HA."""
+    """Handle options flow for HomeMind Ai."""
 
     def __init__(self):
         """Initialize options flow."""

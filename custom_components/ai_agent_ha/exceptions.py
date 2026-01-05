@@ -1,10 +1,10 @@
-"""Custom exceptions for AI Agent HA integration."""
+"""Custom exceptions for HomeMind Ai integration."""
 
 from homeassistant.exceptions import HomeAssistantError
 
 
 class AIAgentHAError(HomeAssistantError):
-    """Base exception for AI Agent HA errors."""
+    """Base exception for HomeMind Ai errors."""
 
     pass
 

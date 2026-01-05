@@ -1,4 +1,4 @@
-"""Utility functions for AI Agent HA integration."""
+"""Utility functions for HomeMind Ai integration."""
 
 from __future__ import annotations
 

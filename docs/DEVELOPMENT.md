@@ -1,6 +1,6 @@
-# Development Guide for AI Agent HA
+# Development Guide for HomeMind Ai
 
-This guide provides information about the development workflow and technical aspects of the AI Agent HA project.
+This guide provides information about the development workflow and technical aspects of the HomeMind Ai project.
 
 ## Development Environment Setup
 
