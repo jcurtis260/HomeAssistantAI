@@ -2823,6 +2823,26 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
                             response_data = json.loads(response_clean)
                             _LOGGER.debug("Basic JSON parse succeeded!")
                         except json.JSONDecodeError as e:
+                            # Try to fix common JSON errors before fallback
+                            # Fix: ["key": "value"] -> {"key": "value"}
+                            import re
+                            fixed_response = re.sub(
+                                r'\[\s*"([^"]+)":\s*"([^"]+)"\s*\]',
+                                r'{"\1": "\2"}',
+                                response_clean
+                            )
+                            # Fix: ["key": value] -> {"key": value}
+                            fixed_response = re.sub(
+                                r'\[\s*"([^"]+)":\s*([^,\]]+)\s*\]',
+                                r'{"\1": \2}',
+                                fixed_response
+                            )
+                            if fixed_response != response_clean:
+                                try:
+                                    response_data = json.loads(fixed_response)
+                                    _LOGGER.debug("Fixed JSON parse succeeded!")
+                                except json.JSONDecodeError:
+                                    pass  # Fall through to original error handling
                             _LOGGER.warning("Basic JSON parse failed: %s", str(e))
                             _LOGGER.debug("JSON error position: %d", e.pos)
                             if e.pos < len(response_clean):

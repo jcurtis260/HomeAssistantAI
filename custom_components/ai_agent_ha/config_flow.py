@@ -320,10 +320,13 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
 
         if user_input is not None:
             # Store selected provider and move to configure step
+            selected_provider = user_input["ai_provider"]
             self.options_data = {
-                "ai_provider": user_input["ai_provider"],
+                "ai_provider": selected_provider,
                 "current_provider": current_provider,
             }
+            # If provider changed, we'll use default model for new provider
+            # If same provider, we'll use current model
             return await self.async_step_configure_options()
 
         return self.async_show_form(
