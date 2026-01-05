@@ -951,8 +951,15 @@ class AiAgentHaAgent:
             '  "request": "command_name",\n'
             '  "parameters": {...}\n'
             "}\n"
-            'For get_entities with multiple areas: {"request_type": "get_entities", "parameters": {"area_ids": ["area1", "area2"]}}\n'
-            'For get_entities with single area: {"request_type": "get_entities", "parameters": {"area_id": "single_area"}}\n\n'
+            "OR use the request type directly (preferred for update_dashboard, create_dashboard, etc.):\n"
+            "{\n"
+            '  "request_type": "command_name",\n'
+            '  "parameters": {...}\n'
+            "}\n"
+            'Examples:\n'
+            '- get_entities: {"request_type": "get_entities", "parameters": {"area_ids": ["area1", "area2"]}}\n'
+            '- update_dashboard: {"request_type": "update_dashboard", "parameters": {"dashboard_url": "living-room-lights", "dashboard_config": {"views": [...]}}}\n'
+            'IMPORTANT: update_dashboard is NOT a service call - use it as a request_type, NOT call_service()!\n\n'
             "For service calls, use this exact JSON format:\n"
             "{\n"
             '  "request_type": "call_service",\n'
@@ -1081,8 +1088,15 @@ class AiAgentHaAgent:
             '  "request": "command_name",\n'
             '  "parameters": {...}\n'
             "}\n"
-            'For get_entities with multiple areas: {"request_type": "get_entities", "parameters": {"area_ids": ["area1", "area2"]}}\n'
-            'For get_entities with single area: {"request_type": "get_entities", "parameters": {"area_id": "single_area"}}\n\n'
+            "OR use the request type directly (preferred for update_dashboard, create_dashboard, etc.):\n"
+            "{\n"
+            '  "request_type": "command_name",\n'
+            '  "parameters": {...}\n'
+            "}\n"
+            'Examples:\n'
+            '- get_entities: {"request_type": "get_entities", "parameters": {"area_ids": ["area1", "area2"]}}\n'
+            '- update_dashboard: {"request_type": "update_dashboard", "parameters": {"dashboard_url": "living-room-lights", "dashboard_config": {"views": [...]}}}\n'
+            'IMPORTANT: update_dashboard is NOT a service call - use it as a request_type, NOT call_service()!\n\n'
             "For service calls, use this exact JSON format:\n"
             "{\n"
             '  "request_type": "call_service",\n'
