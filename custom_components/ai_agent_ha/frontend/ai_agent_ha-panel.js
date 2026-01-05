@@ -560,9 +560,9 @@ class AiAgentHaPanel extends LitElement {
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border-radius: 12px;
-        font-size: 12px;
+        font-size: 11px;
         color: #cbd5e1;
-        max-height: 250px;
+        max-height: 400px;
         overflow-y: auto;
         white-space: pre-wrap;
         word-break: break-word;
@@ -570,8 +570,9 @@ class AiAgentHaPanel extends LitElement {
         box-shadow: 
           0 4px 20px rgba(0, 0, 0, 0.3),
           inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        line-height: 1.5;
+        line-height: 1.4;
         animation: slideDown 0.3s ease-out;
+        font-family: 'Courier New', monospace;
       }
       @keyframes slideDown {
         from {
@@ -583,7 +584,7 @@ class AiAgentHaPanel extends LitElement {
         }
         to {
           opacity: 1;
-          max-height: 250px;
+          max-height: 400px;
           padding-top: 12px;
           padding-bottom: 12px;
           margin-top: 12px;
@@ -1912,6 +1913,8 @@ class AiAgentHaPanel extends LitElement {
         } else {
           this._updateStatusMessage(`Still processing... (${elapsed}s)\nComplex operations may take longer.`);
         }
+        // Update status details periodically to show latest processing steps
+        this._updateStatusDetails();
         this.requestUpdate();
       } else {
         // Clear interval if not loading
@@ -1942,10 +1945,12 @@ class AiAgentHaPanel extends LitElement {
 
     try {
       console.debug("Calling ai_agent_ha service");
+      this._addStatusLog('🔄 Calling Home Assistant service...', `Service: ai_agent_ha.query, Provider: ${this._selectedProvider}`);
       await this.hass.callService('ai_agent_ha', 'query', {
         prompt: prompt,
         provider: this._selectedProvider
       });
+      this._addStatusLog('✅ Service call completed', 'Waiting for AI response...');
     } catch (error) {
       console.error("Error calling service:", error);
       this._clearLoadingState();
@@ -1961,8 +1966,8 @@ class AiAgentHaPanel extends LitElement {
     this._isLoading = false;
     this._requestStartTime = null;
     this._elapsedTime = 0;
-    this._statusDetails = '';
-    this._currentPrompt = '';
+    // Don't clear status details - let user keep them visible
+    // Don't clear current prompt or status log - keep for details view
     if (this._serviceCallTimeout) {
       clearTimeout(this._serviceCallTimeout);
       this._serviceCallTimeout = null;
@@ -1971,6 +1976,8 @@ class AiAgentHaPanel extends LitElement {
       clearInterval(this._statusUpdateInterval);
       this._statusUpdateInterval = null;
     }
+    // Final update to show complete details
+    this._updateStatusDetails();
   }
 
   _addStatusLog(message, details = '') {
