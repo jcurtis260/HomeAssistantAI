@@ -65,17 +65,15 @@
     "options": {
         "step": {
             "init": {
-                "title": "AI Provider Settings",
-                "description": "Current provider: {current_provider}. Select a provider to configure and set default provider/model",
+                "title": "Default Settings",
+                "description": "Set the default provider and model for HomeMind Ai. This will be selected automatically when you open the HomeMind Ai page.",
                 "data": {
-                    "ai_provider": "AI Provider",
                     "default_provider": "Default Provider",
                     "default_model": "Default Model (Optional)"
                 },
                 "data_description": {
-                    "ai_provider": "Choose your preferred AI provider to configure",
                     "default_provider": "Select which provider should be selected by default when opening HomeMind Ai",
-                    "default_model": "Select which model should be selected by default (optional, uses provider's default if not set)"
+                    "default_model": "Select which model should be selected by default (optional, uses provider's configured model if not set)"
                 }
             },
             "configure_options": {

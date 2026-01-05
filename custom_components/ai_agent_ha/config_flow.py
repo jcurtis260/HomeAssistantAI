@@ -323,18 +323,100 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
         self.options_data = {}
 
     async def async_step_init(self, user_input=None):
-        """Handle the initial options step - provider selection."""
-        current_provider = self.config_entry.data.get("ai_provider", DEFAULT_PROVIDER)
-
+        """Handle the initial options step - show defaults or provider selection."""
+        # Check if this is the first config entry (we'll use it to store defaults)
+        all_entries = self.hass.config_entries.async_entries(DOMAIN)
+        is_first_entry = len(all_entries) > 0 and all_entries[0].entry_id == self.config_entry.entry_id
+        
+        # Get current defaults from any entry
+        current_default_provider = None
+        current_default_model = None
+        for entry in all_entries:
+            if entry.data.get(CONF_DEFAULT_PROVIDER):
+                current_default_provider = entry.data.get(CONF_DEFAULT_PROVIDER)
+                current_default_model = entry.data.get(CONF_DEFAULT_MODEL)
+                break
+        
+        # Get configured providers for default selection
+        configured_providers = [entry.data.get("ai_provider") for entry in all_entries if entry.data.get("ai_provider")]
+        
         if user_input is not None:
-            # Store selected provider and move to configure step
-            selected_provider = user_input["ai_provider"]
-            self.options_data = {
-                "ai_provider": selected_provider,
-                "current_provider": current_provider,
-            }
-            return await self.async_step_configure_options()
+            # Check if user wants to set defaults or configure provider
+            if "default_provider" in user_input:
+                # Setting defaults - update all entries
+                default_provider = user_input.get(CONF_DEFAULT_PROVIDER)
+                default_model = user_input.get(CONF_DEFAULT_MODEL, "")
+                
+                for entry in all_entries:
+                    updated_data = dict(entry.data)
+                    updated_data[CONF_DEFAULT_PROVIDER] = default_provider
+                    if default_model:
+                        updated_data[CONF_DEFAULT_MODEL] = default_model
+                    elif CONF_DEFAULT_MODEL in updated_data:
+                        del updated_data[CONF_DEFAULT_MODEL]
+                    self.hass.config_entries.async_update_entry(entry, data=updated_data)
+                
+                # Update hass.data
+                if DOMAIN in self.hass.data:
+                    self.hass.data[DOMAIN]["default_provider"] = default_provider
+                    self.hass.data[DOMAIN]["default_model"] = default_model if default_model else None
+                
+                # Continue to provider selection
+                current_provider = self.config_entry.data.get("ai_provider", DEFAULT_PROVIDER)
+                self.options_data = {
+                    "ai_provider": current_provider,
+                    "current_provider": current_provider,
+                }
+                return await self.async_step_configure_options()
+            else:
+                # Provider selection - move to configure
+                selected_provider = user_input["ai_provider"]
+                current_provider = self.config_entry.data.get("ai_provider", DEFAULT_PROVIDER)
+                self.options_data = {
+                    "ai_provider": selected_provider,
+                    "current_provider": current_provider,
+                }
+                return await self.async_step_configure_options()
 
+        # Show defaults step first if this is the first entry
+        if is_first_entry:
+            default_provider_options = [
+                {"value": p, "label": PROVIDERS.get(p, p)} 
+                for p in configured_providers if p in PROVIDERS
+            ]
+            if not default_provider_options:
+                default_provider_options = [{"value": current_default_provider or DEFAULT_PROVIDER, "label": PROVIDERS.get(current_default_provider or DEFAULT_PROVIDER, "")}]
+            
+            # Get model options for default provider
+            default_model_options = []
+            if current_default_provider:
+                default_entry = next((e for e in all_entries if e.data.get("ai_provider") == current_default_provider), None)
+                if default_entry:
+                    models_config = default_entry.data.get("models", {})
+                    available_models = AVAILABLE_MODELS.get(current_default_provider, [])
+                    default_model_options = [{"value": m, "label": m} for m in available_models]
+            
+            schema_dict = {
+                vol.Required(
+                    CONF_DEFAULT_PROVIDER, default=current_default_provider or (configured_providers[0] if configured_providers else DEFAULT_PROVIDER)
+                ): SelectSelector(
+                    SelectSelectorConfig(options=default_provider_options)
+                ),
+            }
+            
+            if default_model_options:
+                schema_dict[vol.Optional(CONF_DEFAULT_MODEL, default=current_default_model)] = SelectSelector(
+                    SelectSelectorConfig(options=default_model_options)
+                )
+            
+            return self.async_show_form(
+                step_id="init",
+                data_schema=vol.Schema(schema_dict),
+                description_placeholders={},
+            )
+        
+        # Not first entry, show provider selection
+        current_provider = self.config_entry.data.get("ai_provider", DEFAULT_PROVIDER)
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(

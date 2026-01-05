@@ -14,7 +14,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .agent import AiAgentHaAgent, sanitize_for_logging
-from .const import DOMAIN
+from .const import CONF_DEFAULT_MODEL, CONF_DEFAULT_PROVIDER, DOMAIN
 from .exceptions import (
     AIAgentHAError,
     ConfigurationError,
