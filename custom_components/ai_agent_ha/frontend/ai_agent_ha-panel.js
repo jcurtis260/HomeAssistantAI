@@ -1510,6 +1510,15 @@ class AiAgentHaPanel extends LitElement {
             // Save the auto-selected provider
             this._saveSelectedProvider(this._selectedProvider);
             console.debug("Auto-selected provider:", this._selectedProvider);
+            // Load custom prompt for auto-selected provider
+            const autoSelectedEntry = aiAgentEntries.find(entry => {
+              const entryProvider = entry.data?.ai_provider;
+              return entryProvider === this._selectedProvider;
+            });
+            if (autoSelectedEntry && autoSelectedEntry.data?.custom_system_prompt) {
+              this._customSystemPrompt = autoSelectedEntry.data.custom_system_prompt;
+              console.debug('Loaded custom system prompt for auto-selected provider');
+            }
           } else if (this._selectedProvider) {
             // Verify saved provider still exists in available providers
             const providerExists = this._availableProviders.some(p => p.value === this._selectedProvider);
