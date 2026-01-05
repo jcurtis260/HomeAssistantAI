@@ -116,21 +116,22 @@ class AiAgentHaPanel extends LitElement {
       .options-button {
         border: none;
         border-radius: 16px;
-        background: rgba(99, 102, 241, 0.3);
+        background: rgba(99, 102, 241, 0.4);
         color: #a5b4fc;
         cursor: pointer;
         transition: all 0.2s ease;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 8px;
-        width: 36px;
+        padding: 8px 12px;
+        min-width: 40px;
         height: 36px;
         flex-shrink: 0;
         position: relative;
         z-index: 101;
         font-family: inherit;
-        border: 1px solid rgba(99, 102, 241, 0.5);
+        border: 2px solid rgba(99, 102, 241, 0.6);
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
       }
       .options-button:hover {
         background: rgba(99, 102, 241, 0.5);
@@ -142,8 +143,13 @@ class AiAgentHaPanel extends LitElement {
         transform: translateY(0);
       }
       .options-button ha-icon {
-        --mdc-icon-size: 20px;
+        --mdc-icon-size: 18px;
         color: inherit;
+        flex-shrink: 0;
+      }
+      .options-button span {
+        color: inherit;
+        white-space: nowrap;
       }
       .clear-button:hover {
         background: var(--error-color);
@@ -1595,9 +1601,10 @@ class AiAgentHaPanel extends LitElement {
             class="options-button"
             @click=${() => { this._showOptionsDialog = true; this.requestUpdate(); }}
             ?disabled=${this._isLoading}
-            title="Options"
+            title="Options - Edit Custom System Prompt"
           >
             <ha-icon icon="mdi:cog"></ha-icon>
+            <span style="margin-left: 6px; font-size: 13px; font-weight: 500;">Options</span>
           </button>
           <button
             class="clear-button"
