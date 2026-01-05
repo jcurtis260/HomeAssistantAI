@@ -957,26 +957,65 @@ class AiAgentHaPanel extends LitElement {
           this._availableProviders = aiAgentEntries.map(entry => {
             let provider = "unknown";
             
+            console.debug("Processing entry:", {
+              title: entry.title,
+              data: entry.data,
+              options: entry.options
+            });
+            
             // First try to get provider from entry data
             if (entry.data && entry.data.ai_provider) {
               provider = entry.data.ai_provider;
-            } else {
-              // Fallback to title mapping
+              console.debug("Found provider in entry.data:", provider);
+            } 
+            // Try entry.options as well
+            else if (entry.options && entry.options.ai_provider) {
+              provider = entry.options.ai_provider;
+              console.debug("Found provider in entry.options:", provider);
+            }
+            // Fallback to title mapping
+            else if (entry.title) {
               const titleToProviderMap = {
                 "HomeMind Ai (OpenRouter)": "openrouter",
                 "HomeMind Ai (Google Gemini)": "gemini",
                 "HomeMind Ai (OpenAI)": "openai",
                 "HomeMind Ai (Llama)": "llama",
                 "HomeMind Ai (Anthropic (Claude))": "anthropic",
+                "HomeMind Ai (Anthropic)": "anthropic",
                 "HomeMind Ai (Alter)": "alter",
                 "HomeMind Ai (Local Model)": "local",
+                // Legacy titles (before rebrand)
+                "AI Agent HA (OpenRouter)": "openrouter",
+                "AI Agent HA (Google Gemini)": "gemini",
+                "AI Agent HA (OpenAI)": "openai",
+                "AI Agent HA (Llama)": "llama",
+                "AI Agent HA (Anthropic (Claude))": "anthropic",
+                "AI Agent HA (Anthropic)": "anthropic",
+                "AI Agent HA (Alter)": "alter",
+                "AI Agent HA (Local Model)": "local",
               };
               provider = titleToProviderMap[entry.title] || "unknown";
+              console.debug("Mapped provider from title:", entry.title, "->", provider);
             }
+            
+            // If still unknown, try to extract from title using regex
+            if (provider === "unknown" && entry.title) {
+              const titleLower = entry.title.toLowerCase();
+              if (titleLower.includes("openrouter")) provider = "openrouter";
+              else if (titleLower.includes("gemini")) provider = "gemini";
+              else if (titleLower.includes("openai")) provider = "openai";
+              else if (titleLower.includes("llama")) provider = "llama";
+              else if (titleLower.includes("anthropic") || titleLower.includes("claude")) provider = "anthropic";
+              else if (titleLower.includes("alter")) provider = "alter";
+              else if (titleLower.includes("local")) provider = "local";
+              console.debug("Extracted provider from title using regex:", provider);
+            }
+            
+            const label = PROVIDERS[provider] || (provider !== "unknown" ? provider : "Unknown Provider");
             
             return {
               value: provider,
-              label: PROVIDERS[provider] || provider
+              label: label
             };
           });
 
@@ -1434,8 +1473,15 @@ class AiAgentHaPanel extends LitElement {
   }
 
   _getSelectedProviderLabel() {
+    if (!this._selectedProvider) {
+      return 'Select Model';
+    }
     const provider = this._availableProviders.find(p => p.value === this._selectedProvider);
-    return provider ? provider.label : 'Select Model';
+    if (provider && provider.label) {
+      return provider.label;
+    }
+    // Fallback: try to get from PROVIDERS map
+    return PROVIDERS[this._selectedProvider] || this._selectedProvider || 'Unknown Model';
   }
 
   async _sendMessage() {
