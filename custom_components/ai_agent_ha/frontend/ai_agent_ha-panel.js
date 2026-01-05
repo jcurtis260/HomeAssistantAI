@@ -39,6 +39,7 @@ class AiAgentHaPanel extends LitElement {
       _elapsedTime: { type: Number, reflect: false, attribute: false },
       _currentPrompt: { type: String, reflect: false, attribute: false },
       _statusLog: { type: Array, reflect: false, attribute: false },
+      _aiResponse: { type: String, reflect: false, attribute: false },
       _collapsedItems: { type: Object, reflect: false, attribute: false },
       _customSystemPrompt: { type: String, reflect: false, attribute: false },
       _showOptionsDialog: { type: Boolean, reflect: false, attribute: false }
@@ -1192,6 +1193,7 @@ class AiAgentHaPanel extends LitElement {
     this._elapsedTime = 0;
     this._currentPrompt = '';
     this._statusLog = [];
+    this._aiResponse = '';
     this._collapsedItems = {};
     this._customSystemPrompt = '';
     this._showOptionsDialog = false;
@@ -1885,7 +1887,8 @@ class AiAgentHaPanel extends LitElement {
     this._requestStartTime = Date.now();
     this._currentPrompt = prompt; // Store the modified prompt for status details
     this._statusLog = [];
-    this._addStatusLog('📤 Sending request to AI service...', `Prompt: "${prompt}"`);
+    this._aiResponse = ''; // Clear previous response
+    this._addStatusLog('📤 Sending request to AI service...', `Full prompt sent: "${prompt}"`);
     this._showStatusDetails = false;
 
     // Clear any existing timeout
@@ -1991,23 +1994,46 @@ class AiAgentHaPanel extends LitElement {
 
   _updateStatusDetails() {
     // Build detailed status from log
-    let details = `📤 Sent to AI:\n"${this._currentPrompt || 'No prompt yet'}"\n\n`;
+    let details = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    details += `📤 PROMPT SENT TO AI:\n`;
+    details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    details += `"${this._currentPrompt || 'No prompt yet'}"\n\n`;
     
     if (this._statusLog.length > 0) {
-      details += `📊 Processing Steps:\n`;
+      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      details += `📊 PROCESSING STEPS:\n`;
+      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
       this._statusLog.forEach((log, index) => {
         const time = log.timestamp && !isNaN(new Date(log.timestamp).getTime()) 
           ? new Date(log.timestamp).toLocaleTimeString() 
           : 'Just now';
-        details += `\n[${time}] ${log.message}`;
-        if (log.details && log.details.length < 150) {
-          details += `\n   ${log.details}`;
-        } else if (log.details) {
-          details += `\n   ${log.details.substring(0, 150)}...`;
+        details += `[${time}] ${log.message}\n`;
+        if (log.details) {
+          // Show full details, but format nicely
+          const detailLines = log.details.split('\n');
+          detailLines.forEach(line => {
+            if (line.trim()) {
+              details += `   ${line}\n`;
+            }
+          });
         }
+        details += `\n`;
       });
-    } else {
-      details += `⏳ Waiting for response...`;
+    }
+    
+    if (this._aiResponse) {
+      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      details += `📥 RESPONSE RECEIVED FROM AI:\n`;
+      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+      // Truncate very long responses for display
+      if (this._aiResponse.length > 2000) {
+        details += `${this._aiResponse.substring(0, 2000)}...\n\n[Response truncated - ${this._aiResponse.length} characters total]`;
+      } else {
+        details += `${this._aiResponse}`;
+      }
+    } else if (this._isLoading) {
+      details += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      details += `⏳ Waiting for AI response...\n`;
     }
     
     this._statusDetails = details;
@@ -2017,12 +2043,14 @@ class AiAgentHaPanel extends LitElement {
     console.debug("Received llama response:", event);
     
     try {
-      // Log the response received
+      // Store the full response
       if (event.data && event.data.answer) {
+        this._aiResponse = event.data.answer;
         const answerPreview = event.data.answer.length > 200 
           ? event.data.answer.substring(0, 200) + '...' 
           : event.data.answer;
-        this._addStatusLog('📥 Received response from AI', `Response: ${answerPreview}`);
+        this._addStatusLog('📥 Received response from AI', `Response length: ${event.data.answer.length} characters`);
+        this._updateStatusDetails(); // Update to show the response
       }
       
       this._clearLoadingState();
