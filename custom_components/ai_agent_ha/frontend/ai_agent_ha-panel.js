@@ -542,6 +542,10 @@ class AiAgentHaPanel extends LitElement {
           margin-top: 12px;
         }
       }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
       .status-time {
         font-size: 13px;
         font-weight: 600;
@@ -1202,6 +1206,15 @@ class AiAgentHaPanel extends LitElement {
   }
 
   render() {
+    if (!this.hass) {
+      return html`
+        <div style="padding: 20px; color: #e0e7ff;">
+          <ha-icon icon="mdi:loading" style="animation: spin 1s linear infinite;"></ha-icon>
+          Loading HomeMind Ai...
+        </div>
+      `;
+    }
+
     console.debug("Rendering with state:", {
       messages: this._messages,
       isLoading: this._isLoading,
