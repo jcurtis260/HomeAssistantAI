@@ -475,42 +475,84 @@ class AiAgentHaPanel extends LitElement {
       .dot:nth-child(2) { animation-delay: -0.16s; }
       .status-toggle {
         cursor: pointer;
-        color: var(--primary-color);
-        font-size: 12px;
+        color: #a5b4fc;
+        font-size: 13px;
+        font-weight: 500;
         display: flex;
         align-items: center;
-        gap: 4px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        transition: background-color 0.2s ease;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        user-select: none;
       }
       .status-toggle:hover {
-        background: var(--primary-color);
-        color: var(--text-primary-color);
+        background: rgba(99, 102, 241, 0.4);
+        border-color: rgba(99, 102, 241, 0.5);
+        color: #cbd5e1;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+      }
+      .status-toggle:active {
+        transform: translateY(0);
       }
       .status-toggle ha-icon {
-        --mdc-icon-size: 16px;
-        transition: transform 0.2s ease;
+        --mdc-icon-size: 18px;
+        transition: transform 0.3s ease;
+        color: #a5b4fc;
       }
       .status-toggle.expanded ha-icon {
         transform: rotate(180deg);
       }
       .status-details {
-        margin-top: 8px;
-        padding: 8px;
-        background: var(--primary-background-color);
-        border-radius: 8px;
-        font-size: 12px;
-        color: var(--secondary-text-color);
-        max-height: 200px;
+        margin-top: 12px;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        font-size: 13px;
+        color: #cbd5e1;
+        max-height: 400px;
         overflow-y: auto;
         white-space: pre-wrap;
         word-break: break-word;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        box-shadow: 
+          0 4px 20px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        line-height: 1.6;
+        animation: slideDown 0.3s ease-out;
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          max-height: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          margin-top: 0;
+        }
+        to {
+          opacity: 1;
+          max-height: 400px;
+          padding-top: 16px;
+          padding-bottom: 16px;
+          margin-top: 12px;
+        }
       }
       .status-time {
-        font-size: 11px;
-        color: var(--secondary-text-color);
+        font-size: 13px;
+        font-weight: 600;
+        color: #a5b4fc;
         margin-left: auto;
+        padding: 6px 12px;
+        background: rgba(99, 102, 241, 0.2);
+        border-radius: 8px;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        min-width: 50px;
+        text-align: center;
       }
       @keyframes bounce {
         0%, 80%, 100% {
