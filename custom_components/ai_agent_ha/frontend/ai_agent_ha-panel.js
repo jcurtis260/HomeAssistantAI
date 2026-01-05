@@ -1198,8 +1198,7 @@ class AiAgentHaPanel extends LitElement {
     this._collapsedItems = {};
     this._customSystemPrompt = '';
     this._showOptionsDialog = false;
-    // Load custom system prompt asynchronously
-    this._loadCustomSystemPrompt().catch(e => console.error('Error loading custom prompt:', e));
+    // Load custom system prompt asynchronously - will be called after component is connected
     this._predefinedPrompts = [
       "Build a new automation to turn off all lights at 10:00 PM every day",
       "What's the current temperature inside and outside?",
