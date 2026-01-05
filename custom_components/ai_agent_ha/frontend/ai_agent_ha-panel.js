@@ -1236,6 +1236,13 @@ class AiAgentHaPanel extends LitElement {
       // Load chat history from localStorage
       this._loadChatHistory();
       
+      // Load custom system prompt (safe to call here as method is defined)
+      try {
+        this._loadCustomSystemPrompt();
+      } catch (e) {
+        console.error('Error loading custom prompt:', e);
+      }
+      
       if (this.hass && !this._eventSubscriptionSetup) {
         this._eventSubscriptionSetup = true;
         this.hass.connection.subscribeEvents(
