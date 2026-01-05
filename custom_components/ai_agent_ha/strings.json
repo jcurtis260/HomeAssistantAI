@@ -32,7 +32,19 @@
                     "anthropic_token": "Enter your Anthropic API key",
                     "alter_token": "Enter your Alter API key",
                     "model": "Choose a predefined model or select 'Custom...' to enter your own",
-                    "custom_model": "Enter a custom model name (only used if 'Custom...' is selected above)"
+                    "custom_model": "Enter a custom model name (only used if 'Custom...' is selected above)",
+                    "custom_system_prompt": "Custom System Prompt (Optional)"
+                },
+                "data_description": {
+                    "llama_token": "Enter your Llama API token",
+                    "openai_token": "Enter your OpenAI API key",
+                    "gemini_token": "Enter your Google Gemini API key",
+                    "openrouter_token": "Enter your OpenRouter API key",
+                    "anthropic_token": "Enter your Anthropic API key",
+                    "alter_token": "Enter your Alter API key",
+                    "model": "Choose a predefined model or select 'Custom...' to enter your own",
+                    "custom_model": "Enter a custom model name (only used if 'Custom...' is selected above)",
+                    "custom_system_prompt": "Add a custom prompt that will be prepended to all your messages. Use *User MSG* or {USER_MSG} as a placeholder for your message."
                 }
             }
         },

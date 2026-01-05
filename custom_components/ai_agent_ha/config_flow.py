@@ -15,7 +15,7 @@ from homeassistant.helpers.selector import (
     TextSelectorConfig,
 )
 
-from .const import CONF_LOCAL_MODEL, CONF_LOCAL_URL, DOMAIN
+from .const import CONF_CUSTOM_SYSTEM_PROMPT, CONF_LOCAL_MODEL, CONF_LOCAL_URL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -252,6 +252,10 @@ class AiAgentHaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ig
             schema_dict[vol.Optional("custom_model")] = TextSelector(
                 TextSelectorConfig(type="text")
             )
+            # Add custom system prompt field
+            schema_dict[vol.Optional(CONF_CUSTOM_SYSTEM_PROMPT)] = TextSelector(
+                TextSelectorConfig(type="text", multiline=True)
+            )
 
             return self.async_show_form(
                 step_id="configure",
@@ -283,6 +287,10 @@ class AiAgentHaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ig
             schema_dict[vol.Optional("custom_model")] = TextSelector(
                 TextSelectorConfig(type="text")
             )
+        # Add custom system prompt field
+        schema_dict[vol.Optional(CONF_CUSTOM_SYSTEM_PROMPT)] = TextSelector(
+            TextSelectorConfig(type="text", multiline=True)
+        )
 
         return self.async_show_form(
             step_id="configure",
@@ -396,6 +404,14 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
                         f"Options flow - Final model config for {provider}: {updated_data['models'].get(provider)}"
                     )
 
+                    # Update custom system prompt if provided
+                    custom_prompt = user_input.get(CONF_CUSTOM_SYSTEM_PROMPT, "").strip()
+                    if custom_prompt:
+                        updated_data[CONF_CUSTOM_SYSTEM_PROMPT] = custom_prompt
+                    elif CONF_CUSTOM_SYSTEM_PROMPT in updated_data:
+                        # Remove if empty
+                        del updated_data[CONF_CUSTOM_SYSTEM_PROMPT]
+
                     # Update the config entry
                     self.hass.config_entries.async_update_entry(
                         self.config_entry, data=updated_data
@@ -426,6 +442,11 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
             ] = SelectSelector(SelectSelectorConfig(options=model_options))
             schema_dict[vol.Optional("custom_model")] = TextSelector(
                 TextSelectorConfig(type="text")
+            )
+            # Add custom system prompt field with current value
+            current_prompt = self.config_entry.data.get(CONF_CUSTOM_SYSTEM_PROMPT, "")
+            schema_dict[vol.Optional(CONF_CUSTOM_SYSTEM_PROMPT, default=current_prompt)] = TextSelector(
+                TextSelectorConfig(type="text", multiline=True)
             )
 
             return self.async_show_form(
@@ -458,6 +479,11 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
             schema_dict[vol.Optional("custom_model")] = TextSelector(
                 TextSelectorConfig(type="text")
             )
+        # Add custom system prompt field with current value
+        current_prompt = self.config_entry.data.get(CONF_CUSTOM_SYSTEM_PROMPT, "")
+        schema_dict[vol.Optional(CONF_CUSTOM_SYSTEM_PROMPT, default=current_prompt)] = TextSelector(
+            TextSelectorConfig(type="text", multiline=True)
+        )
 
         return self.async_show_form(
             step_id="configure_options",

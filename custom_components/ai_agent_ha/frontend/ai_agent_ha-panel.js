@@ -1302,7 +1302,6 @@ class AiAgentHaPanel extends LitElement {
     this._aiResponse = '';
     this._collapsedItems = {};
     this._customSystemPrompt = '';
-    this._showOptionsDialog = false;
     this._expandedDetails = {
       prompt: false,
       steps: true,
@@ -1527,6 +1526,8 @@ class AiAgentHaPanel extends LitElement {
     // Load prompt history when provider changes
     if (changedProps.has('_selectedProvider') && this._selectedProvider && this.hass) {
       await this._loadPromptHistory();
+      // Reload custom system prompt when provider changes
+      await this._loadCustomSystemPrompt();
     }
 
     if (changedProps.has('_messages') || changedProps.has('_isLoading')) {
@@ -1751,21 +1752,6 @@ class AiAgentHaPanel extends LitElement {
         HomeMind Ai
         <div style="display: flex; gap: 8px; margin-left: auto;">
           <button
-            class="options-button"
-            @click=${(e) => { 
-              e.preventDefault();
-              e.stopPropagation();
-              console.log("Options button clicked, current state:", this._showOptionsDialog);
-              this._showOptionsDialog = true;
-              this.requestUpdate();
-            }}
-            ?disabled=${this._isLoading}
-            title="Options - Edit Custom System Prompt"
-          >
-            <ha-icon icon="mdi:cog"></ha-icon>
-            <span style="margin-left: 6px; font-size: 13px; font-weight: 500;">Options</span>
-          </button>
-          <button
             class="clear-button"
             @click=${this._clearChat}
             ?disabled=${this._isLoading}
@@ -1775,7 +1761,6 @@ class AiAgentHaPanel extends LitElement {
           </button>
         </div>
       </div>
-      ${this._showOptionsDialog ? this._renderOptionsDialog() : ''}
       <div class="content">
         <div class="chat-container">
           <div class="messages" id="messages">
@@ -2708,38 +2693,33 @@ class AiAgentHaPanel extends LitElement {
     return this._collapsedItems[itemId] === true;
   }
 
-  _loadCustomSystemPrompt() {
+  async _loadCustomSystemPrompt() {
     try {
-      const saved = localStorage.getItem('ai_agent_ha_custom_system_prompt');
-      if (saved) {
-        this._customSystemPrompt = saved;
-        console.debug('Loaded custom system prompt from localStorage');
+      if (!this.hass || !this._selectedProvider) {
+        this._customSystemPrompt = '';
+        return;
+      }
+
+      // Get config entries from Home Assistant
+      const allEntries = await this.hass.callWS({ type: 'config_entries/get' });
+      const aiAgentEntries = allEntries.filter(entry => entry.domain === 'ai_agent_ha');
+
+      // Find the entry for the selected provider
+      const selectedEntry = aiAgentEntries.find(entry => {
+        const entryProvider = entry.data?.ai_provider;
+        return entryProvider === this._selectedProvider;
+      });
+
+      if (selectedEntry && selectedEntry.data?.custom_system_prompt) {
+        this._customSystemPrompt = selectedEntry.data.custom_system_prompt;
+        console.debug('Loaded custom system prompt from config entry:', this._customSystemPrompt);
+      } else {
+        this._customSystemPrompt = '';
+        console.debug('No custom system prompt found in config entry');
       }
     } catch (e) {
       console.error('Error loading custom system prompt:', e);
       this._customSystemPrompt = '';
-    }
-  }
-
-  async _saveCustomSystemPrompt() {
-    try {
-      if (this._customSystemPrompt && this._customSystemPrompt.trim()) {
-        localStorage.setItem('ai_agent_ha_custom_system_prompt', this._customSystemPrompt);
-        console.log('💾 DEBUG: Saved custom system prompt to localStorage:', this._customSystemPrompt);
-        // Also try to save to Home Assistant storage
-        try {
-          await this.hass.callService('ai_agent_ha', 'save_prompt_history', {
-            custom_system_prompt: this._customSystemPrompt
-          });
-        } catch (e) {
-          console.warn('Could not save to Home Assistant storage, using localStorage only:', e);
-        }
-      } else {
-        localStorage.removeItem('ai_agent_ha_custom_system_prompt');
-        console.log('💾 DEBUG: Removed custom system prompt from localStorage');
-      }
-    } catch (e) {
-      console.error('Error saving custom system prompt:', e);
     }
   }
 
