@@ -15,7 +15,14 @@ from homeassistant.helpers.selector import (
     TextSelectorConfig,
 )
 
-from .const import CONF_CUSTOM_SYSTEM_PROMPT, CONF_LOCAL_MODEL, CONF_LOCAL_URL, DOMAIN
+from .const import (
+    CONF_CUSTOM_SYSTEM_PROMPT,
+    CONF_DEFAULT_MODEL,
+    CONF_DEFAULT_PROVIDER,
+    CONF_LOCAL_MODEL,
+    CONF_LOCAL_URL,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -371,8 +378,16 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
         current_token = self.config_entry.data.get(token_field, "")
         available_models = AVAILABLE_MODELS.get(provider, [DEFAULT_MODELS[provider]])
 
-        # Use current token if provider hasn't changed, otherwise empty
-        display_token = current_token if provider == current_provider else ""
+        # Always show current token (will be masked for password fields)
+        display_token = current_token
+        
+        # Get current custom model if set
+        current_custom_model = ""
+        if current_models.get(provider):
+            # Check if current model is in available models
+            if current_models[provider] not in available_models:
+                # It's a custom model
+                current_custom_model = current_models[provider]
 
         if user_input is not None:
             try:

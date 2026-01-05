@@ -1500,16 +1500,39 @@ class AiAgentHaPanel extends LitElement {
           }
 
           if (!this._selectedProvider && this._availableProviders.length > 0) {
-            // Filter out "unknown" providers if there are valid ones
-            const validProviders = this._availableProviders.filter(p => p.value !== "unknown");
-            if (validProviders.length > 0) {
-              this._selectedProvider = validProviders[0].value;
+            // Check for default provider from config entry
+            let defaultProvider = null;
+            for (const entry of aiAgentEntries) {
+              if (entry.data?.default_provider) {
+                defaultProvider = entry.data.default_provider;
+                break;
+              }
+            }
+            
+            // Use default provider if set, otherwise use first available
+            if (defaultProvider) {
+              const providerExists = this._availableProviders.some(p => p.value === defaultProvider);
+              if (providerExists) {
+                this._selectedProvider = defaultProvider;
+                console.debug("Using default provider from config:", defaultProvider);
+              } else {
+                // Default provider not available, use first valid
+                const validProviders = this._availableProviders.filter(p => p.value !== "unknown");
+                this._selectedProvider = validProviders.length > 0 ? validProviders[0].value : this._availableProviders[0].value;
+                console.debug("Default provider not available, using:", this._selectedProvider);
+              }
             } else {
-              this._selectedProvider = this._availableProviders[0].value;
+              // Filter out "unknown" providers if there are valid ones
+              const validProviders = this._availableProviders.filter(p => p.value !== "unknown");
+              if (validProviders.length > 0) {
+                this._selectedProvider = validProviders[0].value;
+              } else {
+                this._selectedProvider = this._availableProviders[0].value;
+              }
+              console.debug("No default provider set, auto-selected:", this._selectedProvider);
             }
             // Save the auto-selected provider
             this._saveSelectedProvider(this._selectedProvider);
-            console.debug("Auto-selected provider:", this._selectedProvider);
             // Load custom prompt for auto-selected provider
             const autoSelectedEntry = aiAgentEntries.find(entry => {
               const entryProvider = entry.data?.ai_provider;
