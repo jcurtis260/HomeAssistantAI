@@ -42,7 +42,8 @@ class AiAgentHaPanel extends LitElement {
       _aiResponse: { type: String, reflect: false, attribute: false },
       _collapsedItems: { type: Object, reflect: false, attribute: false },
       _customSystemPrompt: { type: String, reflect: false, attribute: false },
-      _showOptionsDialog: { type: Boolean, reflect: false, attribute: false }
+      _showOptionsDialog: { type: Boolean, reflect: false, attribute: false },
+      _expandedDetails: { type: Object, reflect: false, attribute: false }
     };
   }
 
@@ -555,24 +556,119 @@ class AiAgentHaPanel extends LitElement {
       }
       .status-details {
         margin-top: 12px;
-        padding: 12px;
-        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+      .detail-section {
+        background: rgba(0, 0, 0, 0.3);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        border-radius: 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        overflow: hidden;
+        transition: all 0.2s ease;
+      }
+      .detail-section:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        background: rgba(0, 0, 0, 0.4);
+      }
+      .detail-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.2s ease;
+      }
+      .detail-header:hover {
+        background: rgba(99, 102, 241, 0.1);
+      }
+      .detail-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #a5b4fc;
+      }
+      .detail-title ha-icon {
+        --mdc-icon-size: 16px;
+        color: #6366f1;
+      }
+      .detail-toggle {
+        --mdc-icon-size: 18px;
+        color: #94a3b8;
+        transition: transform 0.2s ease;
+      }
+      .detail-toggle.expanded {
+        transform: rotate(180deg);
+      }
+      .detail-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+      }
+      .detail-content.expanded {
+        max-height: 1000px;
+      }
+      .detail-text {
+        margin: 0;
+        padding: 12px;
         font-size: 11px;
+        font-family: 'Courier New', monospace;
         color: #cbd5e1;
-        max-height: 400px;
-        overflow-y: auto;
         white-space: pre-wrap;
         word-break: break-word;
-        border: 1px solid rgba(99, 102, 241, 0.3);
-        box-shadow: 
-          0 4px 20px rgba(0, 0, 0, 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        line-height: 1.4;
-        animation: slideDown 0.3s ease-out;
-        font-family: 'Courier New', monospace;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid rgba(99, 102, 241, 0.1);
+        line-height: 1.5;
+        overflow-x: auto;
+      }
+      .step-item {
+        display: flex;
+        gap: 10px;
+        padding: 8px 12px;
+        border-top: 1px solid rgba(99, 102, 241, 0.1);
+        transition: background 0.2s ease;
+      }
+      .step-item:first-child {
+        border-top: none;
+      }
+      .step-item:hover {
+        background: rgba(99, 102, 241, 0.05);
+      }
+      .step-time {
+        font-size: 10px;
+        color: #94a3b8;
+        min-width: 70px;
+        flex-shrink: 0;
+        font-family: monospace;
+      }
+      .step-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .step-message {
+        font-size: 11px;
+        color: #e0e7ff;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .step-details {
+        font-size: 10px;
+        color: #cbd5e1;
+        font-family: monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+        padding: 6px 8px;
+        background: rgba(99, 102, 241, 0.1);
+        border-radius: 4px;
+        margin-top: 4px;
+        border-left: 2px solid #6366f1;
       }
       @keyframes slideDown {
         from {
@@ -1744,35 +1840,7 @@ class AiAgentHaPanel extends LitElement {
                     </div>
                   </div>
                 </div>
-                ${this._showStatusDetails ? html`
-                  <div class="status-details">
-                    ${this._statusDetails || this._buildDefaultStatusDetails()}
-                    ${this._statusLog && this._statusLog.length > 0 ? html`
-                      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(99, 102, 241, 0.3);">
-                        <div style="font-weight: 600; color: #a5b4fc; margin-bottom: 8px; font-size: 12px;">
-                          📊 Processing Steps:
-                        </div>
-                        <div style="max-height: 150px; overflow-y: auto;">
-                          ${this._statusLog.map((log, index) => html`
-                            <div style="margin-bottom: 6px; padding: 6px 8px; background: rgba(99, 102, 241, 0.1); border-radius: 6px; border-left: 2px solid #6366f1;">
-                              <div style="font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
-                                ${log.timestamp && !isNaN(new Date(log.timestamp).getTime()) ? new Date(log.timestamp).toLocaleTimeString() : 'Just now'}
-                              </div>
-                              <div style="color: #e0e7ff; font-weight: 500; font-size: 11px; line-height: 1.4;">
-                                ${log.message || log.content}
-                              </div>
-                              ${log.details ? html`
-                                <div style="margin-top: 3px; color: #cbd5e1; font-size: 10px; line-height: 1.3; word-break: break-word;">
-                                  ${log.details.length > 100 ? log.details.substring(0, 100) + '...' : log.details}
-                                </div>
-                              ` : ''}
-                            </div>
-                          `)}
-                        </div>
-                      </div>
-                    ` : ''}
-                  </div>
-                ` : ''}
+                ${this._showStatusDetails ? this._renderStatusDetails() : ''}
               </div>
             ` : ''}
             ${this._error ? html`
