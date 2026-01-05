@@ -46,6 +46,18 @@
                     "custom_model": "Enter a custom model name (only used if 'Custom...' is selected above)",
                     "custom_system_prompt": "Add a custom prompt that will be prepended to all your messages. Use *User MSG* or {USER_MSG} as a placeholder for your message."
                 }
+            },
+            "configure_defaults": {
+                "title": "Default Settings",
+                "description": "Set the default provider and model for HomeMind Ai. This will be selected automatically when you open the HomeMind Ai page.",
+                "data": {
+                    "default_provider": "Default Provider",
+                    "default_model": "Default Model (Optional)"
+                },
+                "data_description": {
+                    "default_provider": "Select which provider should be selected by default when opening HomeMind Ai",
+                    "default_model": "Select which model should be selected by default (optional, uses provider's configured model if not set)"
+                }
             }
         },
         "error": {
@@ -65,6 +77,18 @@
     "options": {
         "step": {
             "init": {
+                "title": "Default Settings",
+                "description": "Set the default provider and model for HomeMind Ai. This will be selected automatically when you open the HomeMind Ai page.",
+                "data": {
+                    "default_provider": "Default Provider",
+                    "default_model": "Default Model (Optional)"
+                },
+                "data_description": {
+                    "default_provider": "Select which provider should be selected by default when opening HomeMind Ai",
+                    "default_model": "Select which model should be selected by default (optional, uses provider's configured model if not set)"
+                }
+            },
+            "configure_defaults_options": {
                 "title": "Default Settings",
                 "description": "Set the default provider and model for HomeMind Ai. This will be selected automatically when you open the HomeMind Ai page.",
                 "data": {

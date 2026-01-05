@@ -95,6 +95,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         provider = config_data["ai_provider"]
 
+        # Handle defaults entry specially - don't create an agent
+        if provider == "defaults":
+            # Store default settings
+            default_provider = config_data.get(CONF_DEFAULT_PROVIDER)
+            default_model = config_data.get(CONF_DEFAULT_MODEL)
+            if default_provider:
+                hass.data[DOMAIN]["default_provider"] = default_provider
+                hass.data[DOMAIN]["default_model"] = default_model
+            _LOGGER.info("Default settings configured: provider=%s, model=%s", default_provider, default_model)
+            return True
+
         # Validate provider
         if provider not in [
             "llama",
