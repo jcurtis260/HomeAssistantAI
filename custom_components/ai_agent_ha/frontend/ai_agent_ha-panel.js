@@ -1304,6 +1304,28 @@ class AiAgentHaPanel extends LitElement {
                 ${this._showStatusDetails ? html`
                   <div class="status-details">
                     ${this._statusDetails || this._buildDefaultStatusDetails()}
+                    ${this._statusLog && this._statusLog.length > 0 ? html`
+                      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(99, 102, 241, 0.3);">
+                        <div style="font-weight: 600; color: #a5b4fc; margin-bottom: 12px; font-size: 14px;">
+                          📊 Processing Steps:
+                        </div>
+                        ${this._statusLog.map((log, index) => html`
+                          <div style="margin-bottom: 12px; padding: 8px; background: rgba(99, 102, 241, 0.1); border-radius: 6px; border-left: 3px solid #6366f1;">
+                            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">
+                              ${new Date(log.timestamp).toLocaleTimeString()}
+                            </div>
+                            <div style="color: #e0e7ff; font-weight: 500;">
+                              ${log.message || log.content}
+                            </div>
+                            ${log.details ? html`
+                              <div style="margin-top: 4px; color: #cbd5e1; font-size: 12px;">
+                                ${log.details}
+                              </div>
+                            ` : ''}
+                          </div>
+                        `)}
+                      </div>
+                    ` : ''}
                   </div>
                 ` : ''}
               </div>
