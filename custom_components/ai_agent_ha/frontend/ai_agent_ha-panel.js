@@ -2094,6 +2094,10 @@ class AiAgentHaPanel extends LitElement {
     this._elapsedTime = 0;
     // Don't clear status details - let user keep them visible
     // Don't clear current prompt or status log - keep for details view
+    // Auto-expand response section when complete for easier debugging
+    if (this._aiResponse) {
+      this._expandedDetails.response = true;
+    }
     if (this._serviceCallTimeout) {
       clearTimeout(this._serviceCallTimeout);
       this._serviceCallTimeout = null;
@@ -2103,7 +2107,7 @@ class AiAgentHaPanel extends LitElement {
       this._statusUpdateInterval = null;
     }
     // Final update to show complete details
-    this._updateStatusDetails();
+    this.requestUpdate();
   }
 
   _addStatusLog(message, details = '') {
