@@ -13,6 +13,16 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
+try:
+    from homeassistant.components.diagnostics import async_redact_data
+except ImportError:
+    # Fallback for older Home Assistant versions
+    def async_redact_data(data, to_redact):
+        """Redact sensitive data from diagnostics."""
+        if isinstance(data, dict):
+            return {k: "***" if k in to_redact else v for k, v in data.items()}
+        return data
+
 from .agent import AiAgentHaAgent, sanitize_for_logging
 from .const import CONF_DEFAULT_MODEL, CONF_DEFAULT_PROVIDER, DOMAIN
 from .exceptions import (
@@ -444,3 +454,61 @@ async def _panel_exists(hass: HomeAssistant, panel_name: str) -> bool:
     except Exception as e:
         _LOGGER.debug("Error checking panel existence: %s", str(e))
         return False
+
+
+async def async_get_config_entry_diagnostics(
+    hass: HomeAssistant, entry: ConfigEntry
+) -> dict:
+    """Return diagnostics for a config entry."""
+    diagnostics_data = {
+        "entry": {
+            "title": entry.title,
+            "version": entry.version,
+            "domain": entry.domain,
+            "entry_id": entry.entry_id,
+        },
+        "integration": {
+            "domain": DOMAIN,
+            "version": "1.09",
+        },
+    }
+
+    # Add configuration data (redact sensitive information)
+    config_data = dict(entry.data)
+    sensitive_keys = [
+        "llama_token",
+        "openai_token",
+        "gemini_token",
+        "openrouter_token",
+        "anthropic_token",
+        "alter_token",
+    ]
+    
+    # Redact sensitive keys
+    redacted_config = async_redact_data(config_data, sensitive_keys)
+    diagnostics_data["config"] = redacted_config
+
+    # Add agent information if available
+    if DOMAIN in hass.data and "agents" in hass.data[DOMAIN]:
+        provider = config_data.get("ai_provider")
+        if provider and provider in hass.data[DOMAIN]["agents"]:
+            agent = hass.data[DOMAIN]["agents"][provider]
+            diagnostics_data["agent"] = {
+                "provider": provider,
+                "has_agent": True,
+                "conversation_history_length": len(agent.conversation_history) if hasattr(agent, "conversation_history") else 0,
+            }
+        else:
+            diagnostics_data["agent"] = {
+                "provider": provider,
+                "has_agent": False,
+            }
+        
+        # Add default provider/model info
+        diagnostics_data["defaults"] = {
+            "default_provider": hass.data[DOMAIN].get("default_provider"),
+            "default_model": hass.data[DOMAIN].get("default_model"),
+            "available_providers": list(hass.data[DOMAIN].get("agents", {}).keys()),
+        }
+
+    return diagnostics_data
