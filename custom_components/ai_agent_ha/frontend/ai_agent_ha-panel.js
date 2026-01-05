@@ -1975,6 +1975,9 @@ class AiAgentHaPanel extends LitElement {
     this._selectedProvider = provider;
     console.debug("Provider changed to:", provider);
     
+    // Save provider preference
+    this._saveSelectedProvider(provider);
+    
     // Load chat history for new provider
     this._loadChatHistory();
     
