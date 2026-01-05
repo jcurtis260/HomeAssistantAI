@@ -2987,10 +2987,21 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
                                     parameters.get("dashboard_config")
                                 )
                             elif request_type == "update_dashboard":
-                                data = await self.update_dashboard(
-                                    parameters.get("dashboard_url"),
-                                    parameters.get("dashboard_config"),
-                                )
+                                dashboard_url = parameters.get("dashboard_url")
+                                dashboard_config = parameters.get("dashboard_config")
+                                
+                                # Validate parameters
+                                if not dashboard_url:
+                                    data = {"error": "dashboard_url parameter is required for update_dashboard"}
+                                elif dashboard_config is None:
+                                    data = {"error": "dashboard_config parameter is required for update_dashboard"}
+                                elif not isinstance(dashboard_config, dict):
+                                    data = {"error": f"dashboard_config must be a dictionary, got {type(dashboard_config).__name__}"}
+                                else:
+                                    data = await self.update_dashboard(
+                                        dashboard_url,
+                                        dashboard_config,
+                                    )
                             else:
                                 data = {
                                     "error": f"Unknown request type: {request_type}"
