@@ -357,7 +357,14 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
 
         # Get current configuration
         current_models = self.config_entry.data.get("models", {})
-        current_model = current_models.get(provider, DEFAULT_MODELS[provider])
+        # If provider changed, use default model for new provider
+        # If same provider, use current model or default
+        if provider == current_provider:
+            current_model = current_models.get(provider, DEFAULT_MODELS[provider])
+        else:
+            # Provider changed, use default for new provider
+            current_model = DEFAULT_MODELS[provider]
+        
         # For Alter provider, if model is empty, default to "Custom..." for the dropdown
         if provider == "alter" and not current_model:
             current_model = "Custom..."
