@@ -9,15 +9,16 @@ A powerful Home Assistant custom integration that connects your Home Assistant i
 Click the button above to install AI Agent HA directly through HACS, or see the [detailed installation instructions](#-installation) below.
 
 
-## ☕ Support the Project
+## 🤝 Contributing
 
-If you find this integration helpful and would like to support its development, you can buy me a coffee! Your support helps keep this project active and maintained. Currently I am the only Dev on that project and looking to have more paretners here.
+Contributions are welcome! If you find this integration helpful and would like to contribute:
 
-[![Buy Me A Coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-tips-yellow.svg)](https://www.buymeacoffee.com/sbenodiz)
+- Report bugs or suggest features via [GitHub Issues](https://github.com/jcurtis260/HomeAssistantAI/issues)
+- Submit pull requests with improvements
+- Help improve documentation
+- Test new features and provide feedback
 
-Every contribution, no matter how small, is greatly appreciated and helps fund the continued development and improvement of AI Agent HA.
-
-Another way to support me will be to try my new project. Askie - AI for kids. I am looking for feedback on this one: ⁠Web: https://kidsai.app • ⁠iOS: https://apps.apple.com/app/id6749299565  ⁠Android: https://play.google.com/store/apps/details?id=com.askie.app
+Every contribution, no matter how small, is greatly appreciated!
 
 
 ## ✨ Features
@@ -135,7 +136,7 @@ Use the [Quick Install button](#-quick-install) at the top of this README for th
 2. Click on "Integrations"
 3. Click the three dots in the top right corner
 4. Select "Custom repositories"
-5. Add this repository: `https://github.com/sbenodiz/ai_agent_ha`
+5. Add this repository: `https://github.com/jcurtis260/HomeAssistantAI`
 6. Select "Integration" as the category
 7. Click "Add"
 8. Find "AI Agent HA" in the integration list
@@ -147,7 +148,7 @@ Use the [Quick Install button](#-quick-install) at the top of this README for th
 
 ### Manual Installation
 
-1. Download the latest release from the [releases page](https://github.com/sbenodiz/ai_agent_ha/releases)
+1. Download the latest release from the [releases page](https://github.com/jcurtis260/HomeAssistantAI/releases)
 2. Extract the files
 3. Copy the `custom_components/ai_agent_ha` folder to your Home Assistant `custom_components` directory
 4. Restart Home Assistant
@@ -317,9 +318,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - **Troubleshooting**: [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
-- **Issues**: [GitHub Issues](https://github.com/sbenodiz/ai_agent_ha/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/sbenodiz/ai_agent_ha/discussions)
-- **Documentation**: [Wiki](https://github.com/sbenodiz/ai_agent_ha/wiki)
+- **Issues**: [GitHub Issues](https://github.com/jcurtis260/HomeAssistantAI/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/jcurtis260/HomeAssistantAI/discussions)
 
 ## 🙏 Acknowledgments
 

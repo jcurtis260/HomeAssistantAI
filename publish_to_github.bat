@@ -31,11 +31,15 @@ if errorlevel 1 (
 
 echo.
 echo [3/5] Committing changes...
-git commit -m "Initial commit: AI Agent HA v1.08 with improvements
+git commit -m "Update: AI Agent HA v1.08 with improvements
 
 - Added custom exception classes for better error handling
 - Added input validation utilities
 - Enhanced security with service call validation
+- Fixed timeout issues (increased to 5 minutes)
+- Added expandable status view with progress details
+- Implemented persistent chat history
+- Updated README for fork
 - Improved documentation and frontend code"
 if errorlevel 1 (
     echo ERROR: Failed to commit

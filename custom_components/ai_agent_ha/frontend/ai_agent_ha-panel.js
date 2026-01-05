@@ -32,7 +32,10 @@ class AiAgentHaPanel extends LitElement {
       _selectedPrompts: { type: Array, reflect: false, attribute: false },
       _selectedProvider: { type: String, reflect: false, attribute: false },
       _availableProviders: { type: Array, reflect: false, attribute: false },
-      _showProviderDropdown: { type: Boolean, reflect: false, attribute: false }
+      _showProviderDropdown: { type: Boolean, reflect: false, attribute: false },
+      _statusDetails: { type: String, reflect: false, attribute: false },
+      _showStatusDetails: { type: Boolean, reflect: false, attribute: false },
+      _requestStartTime: { type: Number, reflect: false, attribute: false }
     };
   }
 
@@ -369,15 +372,27 @@ class AiAgentHaPanel extends LitElement {
       }
       .loading {
         display: flex;
-        align-items: center;
-        gap: 12px;
+        flex-direction: column;
+        gap: 8px;
         margin-bottom: 16px;
         padding: 12px 16px;
         border-radius: 12px;
         background: var(--secondary-background-color);
+        border: 1px solid var(--divider-color);
         margin-right: auto;
         max-width: 80%;
         animation: fadeIn 0.3s ease-out;
+      }
+      .loading-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .loading-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
       }
       .loading-dots {
         display: flex;
@@ -386,12 +401,51 @@ class AiAgentHaPanel extends LitElement {
       .dot {
         width: 8px;
         height: 8px;
-        background: var(--primary-color);
         border-radius: 50%;
+        background: var(--primary-color);
         animation: bounce 1.4s infinite ease-in-out;
       }
       .dot:nth-child(1) { animation-delay: -0.32s; }
       .dot:nth-child(2) { animation-delay: -0.16s; }
+      .status-toggle {
+        cursor: pointer;
+        color: var(--primary-color);
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+      }
+      .status-toggle:hover {
+        background: var(--primary-color);
+        color: var(--text-primary-color);
+      }
+      .status-toggle ha-icon {
+        --mdc-icon-size: 16px;
+        transition: transform 0.2s ease;
+      }
+      .status-toggle.expanded ha-icon {
+        transform: rotate(180deg);
+      }
+      .status-details {
+        margin-top: 8px;
+        padding: 8px;
+        background: var(--primary-background-color);
+        border-radius: 8px;
+        font-size: 12px;
+        color: var(--secondary-text-color);
+        max-height: 200px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .status-time {
+        font-size: 11px;
+        color: var(--secondary-text-color);
+        margin-left: auto;
+      }
       @keyframes bounce {
         0%, 80%, 100% {
           transform: scale(0);
@@ -547,6 +601,9 @@ class AiAgentHaPanel extends LitElement {
     this._promptHistoryLoaded = false;
     this._showPredefinedPrompts = true;
     this._showPromptHistory = true;
+    this._statusDetails = '';
+    this._showStatusDetails = false;
+    this._requestStartTime = null;
     this._predefinedPrompts = [
       "Build a new automation to turn off all lights at 10:00 PM every day",
       "What's the current temperature inside and outside?",
@@ -579,6 +636,10 @@ class AiAgentHaPanel extends LitElement {
   async connectedCallback() {
     super.connectedCallback();
     console.debug("AI Agent HA Panel connected");
+    
+    // Load chat history from localStorage
+    this._loadChatHistory();
+    
     if (this.hass && !this._eventSubscriptionSetup) {
       this._eventSubscriptionSetup = true;
       this.hass.connection.subscribeEvents(
@@ -945,12 +1006,35 @@ class AiAgentHaPanel extends LitElement {
             `)}
             ${this._isLoading ? html`
               <div class="loading">
-                <span>AI Agent is thinking</span>
-                <div class="loading-dots">
-                  <div class="dot"></div>
-                  <div class="dot"></div>
-                  <div class="dot"></div>
+                <div class="loading-header">
+                  <div class="loading-content">
+                    <span>AI Agent is processing</span>
+                    <div class="loading-dots">
+                      <div class="dot"></div>
+                      <div class="dot"></div>
+                      <div class="dot"></div>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    ${this._requestStartTime ? html`
+                      <span class="status-time">
+                        ${Math.floor((Date.now() - this._requestStartTime) / 1000)}s
+                      </span>
+                    ` : ''}
+                    <div 
+                      class="status-toggle ${this._showStatusDetails ? 'expanded' : ''}"
+                      @click=${() => { this._showStatusDetails = !this._showStatusDetails; this.requestUpdate(); }}
+                    >
+                      <ha-icon icon="mdi:chevron-down"></ha-icon>
+                      <span>${this._showStatusDetails ? 'Hide' : 'Show'} Details</span>
+                    </div>
+                  </div>
                 </div>
+                ${this._showStatusDetails ? html`
+                  <div class="status-details">
+                    ${this._statusDetails || 'Waiting for response...'}
+                  </div>
+                ` : ''}
               </div>
             ` : ''}
             ${this._error ? html`
@@ -1030,8 +1114,15 @@ class AiAgentHaPanel extends LitElement {
   }
 
   async _selectProvider(provider) {
+    // Save current chat before switching
+    this._saveChatHistory();
+    
     this._selectedProvider = provider;
     console.debug("Provider changed to:", provider);
+    
+    // Load chat history for new provider
+    this._loadChatHistory();
+    
     await this._loadPromptHistory();
     this.requestUpdate();
   }
@@ -1054,29 +1145,54 @@ class AiAgentHaPanel extends LitElement {
 
     // Add user message
     this._messages = [...this._messages, { type: 'user', text: prompt }];
+    this._saveChatHistory(); // Save after adding message
     promptEl.value = '';
     promptEl.style.height = 'auto';
     this._isLoading = true;
     this._error = null;
+    this._requestStartTime = Date.now();
+    this._statusDetails = 'Sending request to AI service...';
+    this._showStatusDetails = false;
 
     // Clear any existing timeout
     if (this._serviceCallTimeout) {
       clearTimeout(this._serviceCallTimeout);
     }
 
-    // Set timeout to clear loading state after 60 seconds
+    // Update status periodically
+    this._statusUpdateInterval = setInterval(() => {
+      if (this._isLoading && this._requestStartTime) {
+        const elapsed = Math.floor((Date.now() - this._requestStartTime) / 1000);
+        if (elapsed < 10) {
+          this._statusDetails = `Sending request to AI service... (${elapsed}s)`;
+        } else if (elapsed < 30) {
+          this._statusDetails = `Waiting for AI response... (${elapsed}s)\nThis may take a moment for complex requests.`;
+        } else if (elapsed < 120) {
+          this._statusDetails = `Processing request... (${elapsed}s)\nThe AI is analyzing your Home Assistant data and generating a response.`;
+        } else {
+          this._statusDetails = `Still processing... (${elapsed}s)\nComplex operations may take longer. The AI is working on your request.`;
+        }
+        this.requestUpdate();
+      }
+    }, 1000);
+
+    // Set timeout to clear loading state after 5 minutes (increased from 60 seconds)
     this._serviceCallTimeout = setTimeout(() => {
       if (this._isLoading) {
         console.warn("Service call timeout - clearing loading state");
         this._isLoading = false;
-        this._error = 'Request timed out. Please try again.';
+        this._error = 'Request timed out after 5 minutes. The request may be too complex or the AI service may be slow. Please try again with a simpler request.';
         this._messages = [...this._messages, {
           type: 'assistant',
-          text: 'Sorry, the request timed out. Please try again.'
+          text: 'Sorry, the request timed out after 5 minutes. This may happen with very complex requests. Please try breaking your request into smaller parts or try again.'
         }];
+        this._saveChatHistory(); // Save after timeout
+        if (this._statusUpdateInterval) {
+          clearInterval(this._statusUpdateInterval);
+        }
         this.requestUpdate();
       }
-    }, 60000); // 60 second timeout
+    }, 300000); // 5 minute timeout (300000ms)
 
     try {
       console.debug("Calling ai_agent_ha service");
@@ -1097,9 +1213,15 @@ class AiAgentHaPanel extends LitElement {
 
   _clearLoadingState() {
     this._isLoading = false;
+    this._requestStartTime = null;
+    this._statusDetails = '';
     if (this._serviceCallTimeout) {
       clearTimeout(this._serviceCallTimeout);
       this._serviceCallTimeout = null;
+    }
+    if (this._statusUpdateInterval) {
+      clearInterval(this._statusUpdateInterval);
+      this._statusUpdateInterval = null;
     }
   }
 
@@ -1164,12 +1286,14 @@ class AiAgentHaPanel extends LitElement {
 
       console.debug("Adding message to UI:", message);
       this._messages = [...this._messages, message];
+      this._saveChatHistory(); // Save after receiving response
     } else {
       this._error = event.data.error || 'An error occurred';
       this._messages = [
         ...this._messages,
         { type: 'assistant', text: `Error: ${this._error}` }
       ];
+      this._saveChatHistory(); // Save after error
     }
     } catch (error) {
       console.error("Error in _handleLlamaResponse:", error);
@@ -1179,6 +1303,7 @@ class AiAgentHaPanel extends LitElement {
         type: 'assistant',
         text: 'Sorry, an error occurred while processing the response. Please try again.'
       }];
+      this._saveChatHistory(); // Save after error
       this.requestUpdate();
     }
   }
@@ -1282,10 +1407,44 @@ class AiAgentHaPanel extends LitElement {
 
   _clearChat() {
     this._messages = [];
+    this._saveChatHistory(); // Save empty chat
     this._clearLoadingState();
     this._error = null;
     this._pendingAutomation = null;
     // Don't clear prompt history - users might want to keep it
+  }
+
+  _loadChatHistory() {
+    try {
+      const saved = localStorage.getItem('ai_agent_ha_chat_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Only load if it's for the current provider or no provider is selected yet
+        if (!parsed.provider || parsed.provider === this._selectedProvider || !this._selectedProvider) {
+          this._messages = parsed.messages || [];
+          console.debug('Loaded chat history from localStorage:', this._messages.length, 'messages');
+        } else {
+          this._messages = [];
+        }
+      }
+    } catch (e) {
+      console.error('Error loading chat history from localStorage:', e);
+      this._messages = [];
+    }
+  }
+
+  _saveChatHistory() {
+    try {
+      const data = {
+        provider: this._selectedProvider,
+        messages: this._messages,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('ai_agent_ha_chat_history', JSON.stringify(data));
+      console.debug('Saved chat history to localStorage:', this._messages.length, 'messages');
+    } catch (e) {
+      console.error('Error saving chat history to localStorage:', e);
+    }
   }
 
   _getProviderInfo(providerId) {
