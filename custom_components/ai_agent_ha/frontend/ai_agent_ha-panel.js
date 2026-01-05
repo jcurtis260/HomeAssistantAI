@@ -1997,6 +1997,29 @@ class AiAgentHaPanel extends LitElement {
     return PROVIDERS[this._selectedProvider] || this._selectedProvider || 'Unknown Model';
   }
 
+  _loadSelectedProvider() {
+    try {
+      const saved = localStorage.getItem('ai_agent_ha_selected_provider');
+      if (saved) {
+        this._selectedProvider = saved;
+        console.debug('Loaded saved provider:', saved);
+      }
+    } catch (e) {
+      console.error('Error loading selected provider:', e);
+    }
+  }
+
+  _saveSelectedProvider(provider) {
+    try {
+      if (provider) {
+        localStorage.setItem('ai_agent_ha_selected_provider', provider);
+        console.debug('Saved provider preference:', provider);
+      }
+    } catch (e) {
+      console.error('Error saving selected provider:', e);
+    }
+  }
+
   async _sendMessage() {
     const promptEl = this.shadowRoot.querySelector('#prompt');
     let prompt = promptEl.value.trim();
