@@ -2207,14 +2207,99 @@ class AiAgentHaPanel extends LitElement {
     } catch (error) {
       console.error("Error in _handleLlamaResponse:", error);
       this._clearLoadingState();
-      this._error = 'An error occurred while processing the response';
+      const friendlyError = this._formatErrorMessage(error.message || String(error));
+      this._error = friendlyError;
+      this._addStatusLog('❌ Error processing response', error.message || String(error));
       this._messages = [...this._messages, {
         type: 'assistant',
-        text: 'Sorry, an error occurred while processing the response. Please try again.'
+        text: friendlyError
       }];
       this._saveChatHistory(); // Save after error
       this.requestUpdate();
     }
+  }
+
+  _formatErrorMessage(errorMessage) {
+    if (!errorMessage) return 'An error occurred. Please try again.';
+    
+    const errorStr = String(errorMessage);
+    
+    // Handle Gemini API rate limit errors (429)
+    if (errorStr.includes('429') || errorStr.includes('RESOURCE_EXHAUSTED') || errorStr.includes('quota')) {
+      // Extract retry delay if available
+      const retryMatch = errorStr.match(/retry.*?(\d+(?:\.\d+)?)\s*s/i) || errorStr.match(/retryDelay.*?"(\d+)s"/i);
+      const retrySeconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : null;
+      
+      // Extract quota limit if available
+      const quotaMatch = errorStr.match(/limit:\s*(\d+)/i) || errorStr.match(/quotaValue.*?"(\d+)"/i);
+      const quotaLimit = quotaMatch ? quotaMatch[1] : null;
+      
+      let message = '⚠️ **Rate Limit Exceeded**\n\n';
+      message += 'You\'ve reached the API rate limit for this provider. ';
+      
+      if (quotaLimit) {
+        message += `The free tier allows ${quotaLimit} requests per day. `;
+      }
+      
+      if (retrySeconds) {
+        const minutes = Math.floor(retrySeconds / 60);
+        const seconds = retrySeconds % 60;
+        if (minutes > 0) {
+          message += `\n\n⏰ **Please wait ${minutes} minute${minutes > 1 ? 's' : ''} and ${seconds} second${seconds !== 1 ? 's' : ''} before trying again.**`;
+        } else {
+          message += `\n\n⏰ **Please wait ${seconds} second${seconds !== 1 ? 's' : ''} before trying again.**`;
+        }
+      } else {
+        message += '\n\n⏰ **Please wait a few minutes before trying again.**';
+      }
+      
+      message += '\n\n💡 **Tip:** You can switch to a different AI provider in the Model dropdown if you have other API keys configured.';
+      
+      return message;
+    }
+    
+    // Handle timeout errors
+    if (errorStr.includes('timeout') || errorStr.includes('timed out')) {
+      return '⏱️ **Request Timeout**\n\nThe request took too long to complete. This might happen with complex requests. Please try:\n\n• Breaking your request into smaller parts\n• Trying again in a moment\n• Using a different AI provider';
+    }
+    
+    // Handle authentication errors
+    if (errorStr.includes('401') || errorStr.includes('authentication') || errorStr.includes('API key') || errorStr.includes('invalid key')) {
+      return '🔐 **Authentication Error**\n\nYour API key is invalid or missing. Please:\n\n• Check your API key in the integration settings\n• Verify the key is correct and has the right permissions\n• Make sure you\'ve selected the correct provider';
+    }
+    
+    // Handle network errors
+    if (errorStr.includes('connection') || errorStr.includes('network') || errorStr.includes('ECONNREFUSED')) {
+      return '🌐 **Network Error**\n\nUnable to connect to the AI service. Please:\n\n• Check your internet connection\n• Verify the AI service is available\n• Try again in a moment';
+    }
+    
+    // Handle "Failed after X retries" errors
+    if (errorStr.includes('Failed after') && errorStr.includes('retries')) {
+      const retryMatch = errorStr.match(/Failed after (\d+) retries/i);
+      const retries = retryMatch ? retryMatch[1] : null;
+      
+      let message = '❌ **Request Failed**\n\nThe request failed after multiple attempts. ';
+      
+      // Try to extract the underlying error
+      const lastErrorMatch = errorStr.match(/Last error[:\s]+(.+?)(?:\n|$)/i);
+      if (lastErrorMatch) {
+        const underlyingError = lastErrorMatch[1].trim();
+        // Recursively format the underlying error
+        return this._formatErrorMessage(underlyingError);
+      }
+      
+      if (retries) {
+        message += `The system tried ${retries} times but couldn't complete the request. `;
+      }
+      
+      message += 'Please try again or switch to a different AI provider.';
+      
+      return message;
+    }
+    
+    // Generic error - show first 200 chars to avoid overwhelming the user
+    const truncated = errorStr.length > 200 ? errorStr.substring(0, 200) + '...' : errorStr;
+    return `❌ **Error**\n\n${truncated}\n\nPlease try again or check the browser console (F12) for more details.`;
   }
 
   async _approveAutomation(automation) {
