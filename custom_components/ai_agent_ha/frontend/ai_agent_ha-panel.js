@@ -85,6 +85,12 @@ class AiAgentHaPanel extends LitElement {
         position: relative;
         z-index: 100;
       }
+      .header > div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+      }
       .clear-button {
         border: none;
         border-radius: 16px;

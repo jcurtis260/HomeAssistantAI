@@ -2473,6 +2473,16 @@ Then restart Home Assistant to see your new dashboard in the sidebar."""
     ) -> Dict[str, Any]:
         """Update an existing dashboard using Home Assistant's Lovelace WebSocket API."""
         try:
+            # Validate inputs
+            if not dashboard_url:
+                return {"error": "Dashboard URL is required"}
+            
+            if dashboard_config is None:
+                return {"error": "Dashboard configuration is required"}
+            
+            if not isinstance(dashboard_config, dict):
+                return {"error": f"Dashboard configuration must be a dictionary, got {type(dashboard_config).__name__}"}
+            
             _LOGGER.debug(
                 "Updating dashboard %s with config: %s",
                 dashboard_url,
