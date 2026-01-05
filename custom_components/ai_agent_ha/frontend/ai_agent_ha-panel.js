@@ -83,7 +83,6 @@ class AiAgentHaPanel extends LitElement {
         z-index: 100;
       }
       .clear-button {
-        margin-left: auto;
         border: none;
         border-radius: 16px;
         background: var(--error-color);
@@ -104,6 +103,38 @@ class AiAgentHaPanel extends LitElement {
         position: relative;
         z-index: 101;
         font-family: inherit;
+      }
+      .options-button {
+        border: none;
+        border-radius: 16px;
+        background: rgba(99, 102, 241, 0.3);
+        color: #a5b4fc;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 101;
+        font-family: inherit;
+        border: 1px solid rgba(99, 102, 241, 0.5);
+      }
+      .options-button:hover {
+        background: rgba(99, 102, 241, 0.5);
+        color: #cbd5e1;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+      }
+      .options-button:active {
+        transform: translateY(0);
+      }
+      .options-button ha-icon {
+        --mdc-icon-size: 20px;
+        color: inherit;
       }
       .clear-button:hover {
         background: var(--error-color);
@@ -545,6 +576,156 @@ class AiAgentHaPanel extends LitElement {
       @keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
+      }
+      .dialog-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease-out;
+      }
+      .dialog-content {
+        background: rgba(15, 20, 25, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 2px solid rgba(99, 102, 241, 0.5);
+        border-radius: 20px;
+        box-shadow: 
+          0 20px 60px rgba(0, 0, 0, 0.5),
+          0 0 80px rgba(99, 102, 241, 0.3);
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        animation: slideInUp 0.3s ease-out;
+        overflow: hidden;
+      }
+      .dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+      }
+      .dialog-header h2 {
+        margin: 0;
+        color: #e0e7ff;
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .dialog-close {
+        background: transparent;
+        border: none;
+        color: #a5b4fc;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .dialog-close:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #cbd5e1;
+      }
+      .dialog-close ha-icon {
+        --mdc-icon-size: 24px;
+      }
+      .dialog-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .option-section {
+        margin-bottom: 24px;
+      }
+      .option-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #a5b4fc;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .option-label ha-icon {
+        --mdc-icon-size: 20px;
+      }
+      .option-description {
+        color: #cbd5e1;
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+      }
+      .option-description code {
+        background: rgba(99, 102, 241, 0.2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        color: #a5b4fc;
+      }
+      .prompt-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 12px;
+        color: #e0e7ff;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+      .prompt-textarea:focus {
+        border-color: rgba(99, 102, 241, 0.6);
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+      }
+      .prompt-textarea::placeholder {
+        color: #94a3b8;
+      }
+      .option-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: rgba(99, 102, 241, 0.1);
+        border-radius: 8px;
+        color: #cbd5e1;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+      .option-hint ha-icon {
+        --mdc-icon-size: 16px;
+        color: #a5b4fc;
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+      .dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 24px;
+        border-top: 1px solid rgba(99, 102, 241, 0.3);
+      }
+      .dialog-footer ha-button {
+        --mdc-button-height: 40px;
+        --mdc-button-padding: 0 20px;
+        border-radius: 12px;
+        font-weight: 600;
       }
       .status-time {
         font-size: 13px;
@@ -997,6 +1178,9 @@ class AiAgentHaPanel extends LitElement {
     this._currentPrompt = '';
     this._statusLog = [];
     this._collapsedItems = {};
+    this._customSystemPrompt = '';
+    this._showOptionsDialog = false;
+    this._loadCustomSystemPrompt();
     this._predefinedPrompts = [
       "Build a new automation to turn off all lights at 10:00 PM every day",
       "What's the current temperature inside and outside?",
@@ -1397,15 +1581,26 @@ class AiAgentHaPanel extends LitElement {
       <div class="header">
         <ha-icon icon="mdi:robot"></ha-icon>
         HomeMind Ai
-        <button
-          class="clear-button"
-          @click=${this._clearChat}
-          ?disabled=${this._isLoading}
-        >
-          <ha-icon icon="mdi:delete-sweep"></ha-icon>
-          <span>Clear Chat</span>
-        </button>
+        <div style="display: flex; gap: 8px; margin-left: auto;">
+          <button
+            class="options-button"
+            @click=${() => { this._showOptionsDialog = true; this.requestUpdate(); }}
+            ?disabled=${this._isLoading}
+            title="Options"
+          >
+            <ha-icon icon="mdi:cog"></ha-icon>
+          </button>
+          <button
+            class="clear-button"
+            @click=${this._clearChat}
+            ?disabled=${this._isLoading}
+          >
+            <ha-icon icon="mdi:delete-sweep"></ha-icon>
+            <span>Clear Chat</span>
+          </button>
+        </div>
       </div>
+      ${this._showOptionsDialog ? this._renderOptionsDialog() : ''}
       <div class="content">
         <div class="chat-container">
           <div class="messages" id="messages">
@@ -1640,24 +1835,37 @@ class AiAgentHaPanel extends LitElement {
 
   async _sendMessage() {
     const promptEl = this.shadowRoot.querySelector('#prompt');
-    const prompt = promptEl.value.trim();
+    let prompt = promptEl.value.trim();
     if (!prompt || this._isLoading) return;
+
+    // Prepend custom system prompt if set
+    if (this._customSystemPrompt && this._customSystemPrompt.trim()) {
+      const customPrompt = this._customSystemPrompt.trim();
+      // Replace *User MSG* or {USER_MSG} with the actual user message
+      if (customPrompt.includes('*User MSG*') || customPrompt.includes('{USER_MSG}')) {
+        prompt = customPrompt.replace(/\*User MSG\*/g, prompt).replace(/{USER_MSG}/g, prompt);
+      } else {
+        // If no placeholder, append user message with separator
+        prompt = `${customPrompt} - ${prompt}`;
+      }
+      console.debug("Applied custom system prompt, final prompt:", prompt);
+    }
 
     console.debug("Sending message:", prompt);
     console.debug("Sending message with provider:", this._selectedProvider);
 
-    // Add to history
-    await this._addToHistory(prompt);
+    // Add original user message to history (not the modified one)
+    await this._addToHistory(promptEl.value.trim());
 
-    // Add user message
-    this._messages = [...this._messages, { type: 'user', text: prompt }];
+    // Add user message (show original in chat, but send modified to AI)
+    this._messages = [...this._messages, { type: 'user', text: promptEl.value.trim() }];
     this._saveChatHistory(); // Save after adding message
     promptEl.value = '';
     promptEl.style.height = 'auto';
     this._isLoading = true;
     this._error = null;
     this._requestStartTime = Date.now();
-    this._currentPrompt = prompt;
+    this._currentPrompt = prompt; // Store the modified prompt for status details
     this._statusLog = [];
     this._addStatusLog('📤 Sending request to AI service...', `Prompt: "${prompt}"`);
     this._showStatusDetails = false;
@@ -2067,6 +2275,94 @@ class AiAgentHaPanel extends LitElement {
 
   _isCollapsed(itemId) {
     return this._collapsedItems[itemId] === true;
+  }
+
+  _loadCustomSystemPrompt() {
+    try {
+      const saved = localStorage.getItem('ai_agent_ha_custom_system_prompt');
+      if (saved) {
+        this._customSystemPrompt = saved;
+        console.debug('Loaded custom system prompt from localStorage');
+      }
+    } catch (e) {
+      console.error('Error loading custom system prompt:', e);
+      this._customSystemPrompt = '';
+    }
+  }
+
+  _saveCustomSystemPrompt() {
+    try {
+      if (this._customSystemPrompt && this._customSystemPrompt.trim()) {
+        localStorage.setItem('ai_agent_ha_custom_system_prompt', this._customSystemPrompt);
+        console.debug('Saved custom system prompt to localStorage');
+      } else {
+        localStorage.removeItem('ai_agent_ha_custom_system_prompt');
+        console.debug('Removed custom system prompt from localStorage');
+      }
+    } catch (e) {
+      console.error('Error saving custom system prompt:', e);
+    }
+  }
+
+  _renderOptionsDialog() {
+    return html`
+      <div class="dialog-overlay" @click=${() => { this._showOptionsDialog = false; this.requestUpdate(); }}>
+        <div class="dialog-content" @click=${(e) => e.stopPropagation()}>
+          <div class="dialog-header">
+            <h2>Options</h2>
+            <button class="dialog-close" @click=${() => { this._showOptionsDialog = false; this.requestUpdate(); }}>
+              <ha-icon icon="mdi:close"></ha-icon>
+            </button>
+          </div>
+          <div class="dialog-body">
+            <div class="option-section">
+              <label class="option-label">
+                <ha-icon icon="mdi:message-text"></ha-icon>
+                Custom System Prompt
+              </label>
+              <div class="option-description">
+                Add a custom prompt that will be prepended to all your messages. Use <code>*User MSG*</code> or <code>{USER_MSG}</code> as a placeholder for your message.
+              </div>
+              <textarea
+                id="customSystemPrompt"
+                class="prompt-textarea"
+                placeholder="Example: You are a home assistant expert, when making dashboards always use modern cards. - *User MSG*"
+                .value=${this._customSystemPrompt || ''}
+                @input=${(e) => { this._customSystemPrompt = e.target.value; }}
+                rows="4"
+              ></textarea>
+              <div class="option-hint">
+                <ha-icon icon="mdi:information"></ha-icon>
+                <span>Leave empty to use default behavior. The placeholder will be replaced with your actual message.</span>
+              </div>
+            </div>
+          </div>
+          <div class="dialog-footer">
+            <ha-button
+              @click=${() => {
+                this._customSystemPrompt = '';
+                this._saveCustomSystemPrompt();
+                this._showOptionsDialog = false;
+                this.requestUpdate();
+              }}
+              style="--mdc-theme-primary: #94a3b8;"
+            >
+              Reset
+            </ha-button>
+            <ha-button
+              @click=${() => {
+                this._saveCustomSystemPrompt();
+                this._showOptionsDialog = false;
+                this.requestUpdate();
+              }}
+              style="--mdc-theme-primary: #6366f1;"
+            >
+              Save
+            </ha-button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   _renderDashboardPreview(dashboard) {
