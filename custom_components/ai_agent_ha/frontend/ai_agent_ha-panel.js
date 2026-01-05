@@ -554,14 +554,14 @@ class AiAgentHaPanel extends LitElement {
       }
       .status-details {
         margin-top: 12px;
-        padding: 16px;
+        padding: 12px;
         background: rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border-radius: 12px;
-        font-size: 13px;
+        font-size: 12px;
         color: #cbd5e1;
-        max-height: 400px;
+        max-height: 250px;
         overflow-y: auto;
         white-space: pre-wrap;
         word-break: break-word;
@@ -569,7 +569,7 @@ class AiAgentHaPanel extends LitElement {
         box-shadow: 
           0 4px 20px rgba(0, 0, 0, 0.3),
           inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        line-height: 1.6;
+        line-height: 1.5;
         animation: slideDown 0.3s ease-out;
       }
       @keyframes slideDown {
@@ -582,9 +582,9 @@ class AiAgentHaPanel extends LitElement {
         }
         to {
           opacity: 1;
-          max-height: 400px;
-          padding-top: 16px;
-          padding-bottom: 16px;
+          max-height: 250px;
+          padding-top: 12px;
+          padding-bottom: 12px;
           margin-top: 12px;
         }
       }
@@ -1716,25 +1716,27 @@ class AiAgentHaPanel extends LitElement {
                   <div class="status-details">
                     ${this._statusDetails || this._buildDefaultStatusDetails()}
                     ${this._statusLog && this._statusLog.length > 0 ? html`
-                      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(99, 102, 241, 0.3);">
-                        <div style="font-weight: 600; color: #a5b4fc; margin-bottom: 12px; font-size: 14px;">
+                      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(99, 102, 241, 0.3);">
+                        <div style="font-weight: 600; color: #a5b4fc; margin-bottom: 8px; font-size: 12px;">
                           📊 Processing Steps:
                         </div>
-                        ${this._statusLog.map((log, index) => html`
-                          <div style="margin-bottom: 12px; padding: 8px; background: rgba(99, 102, 241, 0.1); border-radius: 6px; border-left: 3px solid #6366f1;">
-                            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">
-                              ${new Date(log.timestamp).toLocaleTimeString()}
-                            </div>
-                            <div style="color: #e0e7ff; font-weight: 500;">
-                              ${log.message || log.content}
-                            </div>
-                            ${log.details ? html`
-                              <div style="margin-top: 4px; color: #cbd5e1; font-size: 12px;">
-                                ${log.details}
+                        <div style="max-height: 150px; overflow-y: auto;">
+                          ${this._statusLog.map((log, index) => html`
+                            <div style="margin-bottom: 6px; padding: 6px 8px; background: rgba(99, 102, 241, 0.1); border-radius: 6px; border-left: 2px solid #6366f1;">
+                              <div style="font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                                ${log.timestamp && !isNaN(new Date(log.timestamp).getTime()) ? new Date(log.timestamp).toLocaleTimeString() : 'Just now'}
                               </div>
-                            ` : ''}
-                          </div>
-                        `)}
+                              <div style="color: #e0e7ff; font-weight: 500; font-size: 11px; line-height: 1.4;">
+                                ${log.message || log.content}
+                              </div>
+                              ${log.details ? html`
+                                <div style="margin-top: 3px; color: #cbd5e1; font-size: 10px; line-height: 1.3; word-break: break-word;">
+                                  ${log.details.length > 100 ? log.details.substring(0, 100) + '...' : log.details}
+                                </div>
+                              ` : ''}
+                            </div>
+                          `)}
+                        </div>
                       </div>
                     ` : ''}
                   </div>
