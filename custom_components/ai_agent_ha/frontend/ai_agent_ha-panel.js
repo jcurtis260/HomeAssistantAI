@@ -1482,6 +1482,24 @@ class AiAgentHaPanel extends LitElement {
 
           console.debug("Available AI providers (mapped from data/title):", this._availableProviders);
 
+          // Load custom system prompt from config entries
+          for (const entry of aiAgentEntries) {
+            if (entry.data?.custom_system_prompt) {
+              const entryProvider = entry.data?.ai_provider;
+              // If we have a selected provider, only load for that one
+              if (this._selectedProvider && entryProvider === this._selectedProvider) {
+                this._customSystemPrompt = entry.data.custom_system_prompt;
+                console.debug('Loaded custom system prompt from config entry for', entryProvider);
+                break;
+              } else if (!this._selectedProvider) {
+                // If no provider selected yet, load from first entry with a prompt
+                this._customSystemPrompt = entry.data.custom_system_prompt;
+                console.debug('Loaded custom system prompt from config entry');
+                break;
+              }
+            }
+          }
+
           if (!this._selectedProvider && this._availableProviders.length > 0) {
             // Filter out "unknown" providers if there are valid ones
             const validProviders = this._availableProviders.filter(p => p.value !== "unknown");
