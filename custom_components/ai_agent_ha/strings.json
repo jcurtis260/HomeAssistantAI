@@ -49,14 +49,12 @@
             },
             "configure_defaults": {
                 "title": "Default Settings",
-                "description": "Set the default provider and model for HomeMind Ai. This will be selected automatically when you open the HomeMind Ai page.",
+                "description": "Set the default provider for HomeMind Ai. This provider will be selected automatically when you open the HomeMind Ai page, using its configured model.",
                 "data": {
-                    "default_provider": "Default Provider",
-                    "default_model": "Default Model (Optional)"
+                    "default_provider": "Default Provider"
                 },
                 "data_description": {
-                    "default_provider": "Select which provider should be selected by default when opening HomeMind Ai",
-                    "default_model": "Select which model should be selected by default (optional, uses provider's configured model if not set)"
+                    "default_provider": "Select which provider should be selected by default when opening HomeMind Ai (uses the model configured for that provider)"
                 }
             }
         },
@@ -78,26 +76,22 @@
         "step": {
             "init": {
                 "title": "Default Settings",
-                "description": "Set the default provider and model for HomeMind Ai. This will be selected automatically when you open the HomeMind Ai page.",
+                "description": "Set the default provider for HomeMind Ai. This provider will be selected automatically when you open the HomeMind Ai page, using its configured model.",
                 "data": {
-                    "default_provider": "Default Provider",
-                    "default_model": "Default Model (Optional)"
+                    "default_provider": "Default Provider"
                 },
                 "data_description": {
-                    "default_provider": "Select which provider should be selected by default when opening HomeMind Ai",
-                    "default_model": "Select which model should be selected by default (optional, uses provider's configured model if not set)"
+                    "default_provider": "Select which provider should be selected by default when opening HomeMind Ai (uses the model configured for that provider)"
                 }
             },
             "configure_defaults_options": {
                 "title": "Default Settings",
-                "description": "Set the default provider and model for HomeMind Ai. This will be selected automatically when you open the HomeMind Ai page.",
+                "description": "Set the default provider for HomeMind Ai. This provider will be selected automatically when you open the HomeMind Ai page, using its configured model.",
                 "data": {
-                    "default_provider": "Default Provider",
-                    "default_model": "Default Model (Optional)"
+                    "default_provider": "Default Provider"
                 },
                 "data_description": {
-                    "default_provider": "Select which provider should be selected by default when opening HomeMind Ai",
-                    "default_model": "Select which model should be selected by default (optional, uses provider's configured model if not set)"
+                    "default_provider": "Select which provider should be selected by default when opening HomeMind Ai (uses the model configured for that provider)"
                 }
             },
             "configure_options": {
