@@ -1753,8 +1753,10 @@ class AiAgentHaPanel extends LitElement {
           <button
             class="options-button"
             @click=${(e) => { 
+              e.preventDefault();
               e.stopPropagation();
-              this._showOptionsDialog = !this._showOptionsDialog;
+              console.log("Options button clicked, current state:", this._showOptionsDialog);
+              this._showOptionsDialog = true;
               this.requestUpdate();
             }}
             ?disabled=${this._isLoading}
@@ -2033,10 +2035,11 @@ class AiAgentHaPanel extends LitElement {
       const customPrompt = this._customSystemPrompt.trim();
       // Replace *User MSG* or {USER_MSG} with the actual user message
       if (customPrompt.includes('*User MSG*') || customPrompt.includes('{USER_MSG}')) {
+        // Replace placeholder with user message
         prompt = customPrompt.replace(/\*User MSG\*/g, originalUserMessage).replace(/{USER_MSG}/g, originalUserMessage);
       } else {
-        // If no placeholder, prepend custom prompt with user message
-        prompt = `${customPrompt}\n\nUser message: ${originalUserMessage}`;
+        // If no placeholder, prepend custom prompt followed by user message
+        prompt = `${customPrompt}\n\n${originalUserMessage}`;
       }
       console.log("🔧 DEBUG: Custom system prompt applied");
       console.log("   Custom prompt:", this._customSystemPrompt);
