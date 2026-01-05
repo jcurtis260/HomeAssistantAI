@@ -319,7 +319,8 @@ class AiAgentHaOptionsFlowHandler(config_entries.OptionsFlow):
 
     def __init__(self, config_entry):
         """Initialize options flow."""
-        self.config_entry = config_entry
+        # Note: config_entry is set automatically by the parent OptionsFlow class
+        # Do not set it manually as it's a read-only property
         self.options_data = {}
 
     async def async_step_init(self, user_input=None):
