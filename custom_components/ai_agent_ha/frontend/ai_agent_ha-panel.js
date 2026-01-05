@@ -38,7 +38,10 @@ class AiAgentHaPanel extends LitElement {
       _requestStartTime: { type: Number, reflect: false, attribute: false },
       _elapsedTime: { type: Number, reflect: false, attribute: false },
       _currentPrompt: { type: String, reflect: false, attribute: false },
-      _statusLog: { type: Array, reflect: false, attribute: false }
+      _statusLog: { type: Array, reflect: false, attribute: false },
+      _collapsedItems: { type: Object, reflect: false, attribute: false },
+      _customSystemPrompt: { type: String, reflect: false, attribute: false },
+      _showOptionsDialog: { type: Boolean, reflect: false, attribute: false }
     };
   }
 
