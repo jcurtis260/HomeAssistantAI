@@ -1198,7 +1198,8 @@ class AiAgentHaPanel extends LitElement {
     this._collapsedItems = {};
     this._customSystemPrompt = '';
     this._showOptionsDialog = false;
-    this._loadCustomSystemPrompt();
+    // Load custom system prompt asynchronously
+    this._loadCustomSystemPrompt().catch(e => console.error('Error loading custom prompt:', e));
     this._predefinedPrompts = [
       "Build a new automation to turn off all lights at 10:00 PM every day",
       "What's the current temperature inside and outside?",
@@ -2417,9 +2418,9 @@ class AiAgentHaPanel extends LitElement {
           </div>
           <div class="dialog-footer">
             <ha-button
-              @click=${() => {
+              @click=${async () => {
                 this._customSystemPrompt = '';
-                this._saveCustomSystemPrompt();
+                await this._saveCustomSystemPrompt();
                 this._showOptionsDialog = false;
                 this.requestUpdate();
               }}
@@ -2428,10 +2429,11 @@ class AiAgentHaPanel extends LitElement {
               Reset
             </ha-button>
             <ha-button
-              @click=${() => {
-                this._saveCustomSystemPrompt();
+              @click=${async () => {
+                await this._saveCustomSystemPrompt();
                 this._showOptionsDialog = false;
                 this.requestUpdate();
+                console.log("💾 DEBUG: Custom system prompt saved:", this._customSystemPrompt);
               }}
               style="--mdc-theme-primary: #6366f1;"
             >
