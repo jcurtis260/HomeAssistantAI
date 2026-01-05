@@ -1562,6 +1562,18 @@ class AiAgentHaPanel extends LitElement {
             console.error("Dashboard suggestion missing or invalid dashboard object:", response);
             message.text = 'I tried to create a dashboard, but the configuration was invalid. Please try again.';
           }
+        } else if (response.request_type === 'entity_change' || response.entity_change) {
+          // Handle entity changes (renames, state changes, etc.)
+          message.entityChange = response.entity_change || {
+            type: response.request_type === 'entity_change' ? 'update' : 'change',
+            entityId: response.entity_id,
+            oldName: response.old_name,
+            newName: response.new_name,
+            oldState: response.old_state,
+            newState: response.new_state,
+            attributes: response.attributes
+          };
+          message.text = response.message || 'I\'ve prepared the changes. Preview them below and confirm if you\'d like to proceed.';
         } else if (response.request_type === 'final_response') {
           // If it's a final response, use the response field
           message.text = response.response || response.message || event.data.answer;
