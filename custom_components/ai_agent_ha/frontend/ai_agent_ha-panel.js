@@ -1394,7 +1394,7 @@ class AiAgentHaPanel extends LitElement {
         // Load prompt history from Home Assistant storage
         await this._loadPromptHistory();
       } else {
-        console.log("⚠️ DEBUG: hass not available or subscription already set up");
+        // Hass not available or subscription already set up
       }
 
       // Close dropdown when clicking outside
@@ -1411,12 +1411,8 @@ class AiAgentHaPanel extends LitElement {
 
   async updated(changedProps) {
     try {
-      console.log("✅ DEBUG: updated() called with:", Object.keys(changedProps));
-
       // Set up event subscription when hass becomes available
       if (changedProps.has('hass')) {
-        console.log("✅ DEBUG: hass property updated");
-        console.log("   hass available:", !!this.hass);
         if (this.hass && !this._eventSubscriptionSetup) {
           this._eventSubscriptionSetup = true;
           this.hass.connection.subscribeEvents(
@@ -1813,7 +1809,7 @@ class AiAgentHaPanel extends LitElement {
   render() {
     try {
       if (!this.hass) {
-        console.log("⚠️ DEBUG: hass not available, showing loading state");
+        // Hass not available, showing loading state
         return html`
           <div style="padding: 20px; color: #e0e7ff; text-align: center; margin-top: 50px;">
             <ha-icon icon="mdi:loading" style="animation: spin 1s linear infinite; --mdc-icon-size: 48px;"></ha-icon>
@@ -1823,11 +1819,7 @@ class AiAgentHaPanel extends LitElement {
         `;
       }
 
-      console.log("✅ DEBUG: Rendering panel with hass available");
-      console.log("   Messages:", this._messages?.length || 0);
-      console.log("   Loading:", this._isLoading);
-      console.log("   Error:", this._error);
-      console.log("   Provider:", this._selectedProvider);
+      // Debug logging removed to prevent console spam
 
     return html`
       <div class="header">
@@ -2132,18 +2124,18 @@ class AiAgentHaPanel extends LitElement {
         // If no placeholder, prepend custom prompt followed by user message
         prompt = `${customPrompt}\n\n${originalUserMessage}`;
       }
-      console.log("🔧 DEBUG: Custom system prompt applied");
-      console.log("   Custom prompt:", this._customSystemPrompt);
-      console.log("   Original user message:", originalUserMessage);
-      console.log("   Final combined prompt:", prompt);
+      console.debug("🔧 DEBUG: Custom system prompt applied");
+      console.debug("   Custom prompt:", this._customSystemPrompt);
+      console.debug("   Original user message:", originalUserMessage);
+      console.debug("   Final combined prompt:", prompt);
     } else {
-      console.log("🔧 DEBUG: No custom system prompt - using default");
+      console.debug("🔧 DEBUG: No custom system prompt - using default");
     }
 
-    console.log("📤 DEBUG: Sending to AI");
-    console.log("   Provider:", this._selectedProvider);
-    console.log("   Full prompt length:", prompt.length, "characters");
-    console.log("   Prompt preview:", prompt.substring(0, 200) + (prompt.length > 200 ? '...' : ''));
+    console.debug("📤 DEBUG: Sending to AI");
+    console.debug("   Provider:", this._selectedProvider);
+    console.debug("   Full prompt length:", prompt.length, "characters");
+    console.debug("   Prompt preview:", prompt.substring(0, 200) + (prompt.length > 200 ? '...' : ''));
 
     // Add original user message to history (not the modified one)
     await this._addToHistory(promptEl.value.trim());
