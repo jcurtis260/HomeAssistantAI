@@ -1294,6 +1294,11 @@ class AiAgentHaPanel extends LitElement {
     this._collapsedItems = {};
     this._customSystemPrompt = '';
     this._showOptionsDialog = false;
+    this._expandedDetails = {
+      prompt: false,
+      steps: true,
+      response: false
+    };
     // Load custom system prompt asynchronously - will be called after component is connected
     this._predefinedPrompts = [
       "Build a new automation to turn off all lights at 10:00 PM every day",
@@ -2169,6 +2174,110 @@ class AiAgentHaPanel extends LitElement {
     }
     
     this._statusDetails = details;
+  }
+
+  _renderStatusDetails() {
+    return html`
+      <div class="status-details">
+        <!-- Prompt Section -->
+        ${this._currentPrompt ? html`
+          <div class="detail-section">
+            <div 
+              class="detail-header"
+              @click=${() => {
+                this._expandedDetails.prompt = !this._expandedDetails.prompt;
+                this.requestUpdate();
+              }}
+            >
+              <div class="detail-title">
+                <ha-icon icon="mdi:send"></ha-icon>
+                <span>Prompt Sent (${this._currentPrompt.length} chars)</span>
+              </div>
+              <ha-icon 
+                icon="mdi:chevron-down" 
+                class="detail-toggle ${this._expandedDetails.prompt ? 'expanded' : ''}"
+              ></ha-icon>
+            </div>
+            <div class="detail-content ${this._expandedDetails.prompt ? 'expanded' : ''}">
+              <pre class="detail-text">${this._currentPrompt}</pre>
+            </div>
+          </div>
+        ` : ''}
+        
+        <!-- Processing Steps Section -->
+        ${this._statusLog && this._statusLog.length > 0 ? html`
+          <div class="detail-section">
+            <div 
+              class="detail-header"
+              @click=${() => {
+                this._expandedDetails.steps = !this._expandedDetails.steps;
+                this.requestUpdate();
+              }}
+            >
+              <div class="detail-title">
+                <ha-icon icon="mdi:format-list-bulleted"></ha-icon>
+                <span>Processing Steps (${this._statusLog.length})</span>
+              </div>
+              <ha-icon 
+                icon="mdi:chevron-down" 
+                class="detail-toggle ${this._expandedDetails.steps ? 'expanded' : ''}"
+              ></ha-icon>
+            </div>
+            <div class="detail-content ${this._expandedDetails.steps ? 'expanded' : ''}">
+              ${this._statusLog.map((log, index) => html`
+                <div class="step-item">
+                  <div class="step-time">
+                    ${log.timestamp && !isNaN(new Date(log.timestamp).getTime()) 
+                      ? new Date(log.timestamp).toLocaleTimeString() 
+                      : 'Just now'}
+                  </div>
+                  <div class="step-content">
+                    <div class="step-message">${log.message || log.content}</div>
+                    ${log.details ? html`
+                      <div class="step-details">${log.details}</div>
+                    ` : ''}
+                  </div>
+                </div>
+              `)}
+            </div>
+          </div>
+        ` : ''}
+        
+        <!-- Response Section -->
+        ${this._aiResponse ? html`
+          <div class="detail-section">
+            <div 
+              class="detail-header"
+              @click=${() => {
+                this._expandedDetails.response = !this._expandedDetails.response;
+                this.requestUpdate();
+              }}
+            >
+              <div class="detail-title">
+                <ha-icon icon="mdi:message-reply"></ha-icon>
+                <span>AI Response (${this._aiResponse.length} chars)</span>
+              </div>
+              <ha-icon 
+                icon="mdi:chevron-down" 
+                class="detail-toggle ${this._expandedDetails.response ? 'expanded' : ''}"
+              ></ha-icon>
+            </div>
+            <div class="detail-content ${this._expandedDetails.response ? 'expanded' : ''}">
+              <pre class="detail-text">${this._aiResponse}</pre>
+            </div>
+          </div>
+        ` : this._isLoading ? html`
+          <div class="detail-section">
+            <div class="detail-header">
+              <div class="detail-title">
+                <ha-icon icon="mdi:loading" style="animation: spin 1s linear infinite;"></ha-icon>
+                <span>Waiting for response...</span>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
   }
 
   _handleLlamaResponse(event) {
